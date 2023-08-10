@@ -1,13 +1,13 @@
-const express = require("express");
+import express from 'express'
+
+// Import controllers
+import userController from "./controllers/user_controller";
+
 const app = express();
 app.use(express.json());
 
-// Import controllers
-const userController = require("./controllers/user_controller.js");
-
 // Use the controllers for specific routes
 app.use("/", userController);
-
 
 // Start the server
 const port = 3000;

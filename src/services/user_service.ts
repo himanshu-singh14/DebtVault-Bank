@@ -1,11 +1,11 @@
-const User = require("../models/user.js");
-const UserDao = require("../dao/user_dao.js");
+import User from "../models/user";
+import UserDao from "../dao/user_dao";
 
 const userDao = new UserDao();
 
 class UserService {
   // Registers a new user with the provided information
-  async registerUser(name, mobileNumber, password) {
+  async registerUser(name: string, mobileNumber: number, password: any) {
     if (name && mobileNumber && password) {
       const existingUser = await this.getUserByMobileNumber(mobileNumber);
       if (existingUser) {
@@ -28,10 +28,10 @@ class UserService {
   }
 
   // Retrieves a user by their mobile number
-  async getUserByMobileNumber(mobileNumber) {
+  async getUserByMobileNumber(mobileNumber: number) {
     const user = await userDao.getUserByMobileNumber(mobileNumber);
     return user;
   }
 }
 
-module.exports = UserService;
+export default UserService;

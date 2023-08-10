@@ -4,17 +4,25 @@
   "description": "Virtual P2P Loan Platform - A Modern Digital Banking Experience",
   "main": "index.js",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --experimental-modules src/app.js"
+    "start": "nodemon --experimental-modules dist/app.js",
+    "dev": "ts-node-dev src/app.ts" 
   },
   "author": "himanshu singh",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.4.9",
     "axios": "^1.4.0",
     "express": "^4.18.2",
     "mysql": "^2.18.1",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.0.1",
-    "prompt": "^1.3.0"
+    "prompt": "^1.3.0",
+    "typescript": "^5.1.6"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0"
   }
 }

@@ -1,10 +1,10 @@
-const database = require("../database/database.js");
-const User = require("../models/user.js");
+import database from "../database/database";
+import User from "../models/user";
 database.connect();
 
 class UserDao {
   // Retrieves a user by their mobile number
-  getUserByMobileNumber(mobileNumber) {
+  getUserByMobileNumber(mobileNumber: number) {
     return new Promise((resolve, reject) => {
       const query = `SELECT * FROM user WHERE mobileNumber = '${mobileNumber}'`;
       database.query(query, (err, rows, fields) => {
@@ -33,7 +33,7 @@ class UserDao {
   }
 
   // Insert user to database
-  insert(user) {
+  insert(user: User): void {
     const query = `INSERT INTO user (name, mobileNumber, password) VALUES ('${user.name}', '${user.mobileNumber}', '${user.password}');`;
     database.query(query, (err, rows, fields) => {
       if (err) throw err;
@@ -41,4 +41,4 @@ class UserDao {
   }
 }
 
-module.exports = UserDao;
+export default UserDao;

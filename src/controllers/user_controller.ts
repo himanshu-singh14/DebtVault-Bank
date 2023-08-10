@@ -1,10 +1,10 @@
-const express = require("express");
-const router = express.Router();
-const UserService = require("../services/user_service.js");
+import express, {Request, Response} from "express";
+import UserService from "../services/user_service";
 
+const router = express.Router();
 const userService = new UserService();
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req: Request, res: Response) => {
     try {
       const { name, mobileNumber, password } = req.body;
       const user = await userService.registerUser(name, mobileNumber, password);
@@ -18,4 +18,4 @@ router.post("/register", async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
