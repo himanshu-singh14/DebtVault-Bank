@@ -64,4 +64,16 @@ router.patch("/users/:mobileNumber/details", async (req: Request, res: Response)
     res.status(typedError.status).send(typedError.message);
   }
 });
+
+// Show all users
+router.get("/users", async (req: Request, res: Response) => {
+  try {
+    const users = await userService.showAllUsers();
+    res.status(200).json(users);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
 export default router;

@@ -94,10 +94,19 @@ class UserService {
         filteredDetails[key] = value;
       }
     });
-    const mobile = {"mobileNumber": mobileNumber};
+    const mobile = { mobileNumber: mobileNumber };
     const combinedDetails = { ...mobile, ...filteredDetails };
     await userDao.updateUser(combinedDetails);
     return user?.dataValues.name;
+  }
+
+  // Show all users
+  async showAllUsers(): Promise<object[]> {
+    const users = await userDao.getAllUsers();
+    if (users.length === 0) {
+      throw new NotFoundError("Users not found");
+    }
+    return users
   }
 }
 

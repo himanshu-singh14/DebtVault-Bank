@@ -25,6 +25,12 @@ class UserDao {
       where: { mobileNumber: userData.mobileNumber },
     });
   }
+
+  // Retrieves all users
+  async getAllUsers(): Promise<object[]> {
+    const users = await User.findAll();
+    return users.map((user) => user.dataValues);
+  }
 }
 
 export default UserDao;
