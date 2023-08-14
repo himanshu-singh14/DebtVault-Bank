@@ -69,7 +69,7 @@ class UserService {
       throw new BadRequestError("Invalid Credential");
     }
     const user = await this.getUserByMobileNumber(mobileNumber);
-    if (user.dataValues.password === oldPassword) {
+    if (!(user.dataValues.password === oldPassword)) {
       throw new WrongPasswordError("Password didn't matched.");
     }
     const userData = {

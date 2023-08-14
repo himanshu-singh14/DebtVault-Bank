@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 
 // Use the controllers for specific routes
-app.use("/", userController);
+app.use("/users", userController);
 
 User.sync().then(() => {
   console.log("Database and tables created!");

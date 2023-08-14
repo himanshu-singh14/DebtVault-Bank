@@ -40,7 +40,7 @@ router.patch("/logout/:mobileNumber", async (req: Request, res: Response) => {
 });
 
 // Change password
-router.patch("/users/:mobileNumber/change-password", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/change-password", async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { oldPassword, newPassword } = req.body;
@@ -53,7 +53,7 @@ router.patch("/users/:mobileNumber/change-password", async (req: Request, res: R
 });
 
 // Update details
-router.patch("/users/:mobileNumber/details", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/details", async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const details: any = req.body;
@@ -66,7 +66,7 @@ router.patch("/users/:mobileNumber/details", async (req: Request, res: Response)
 });
 
 // Show all users
-router.get("/users", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const users = await userService.showAllUsers();
     res.status(200).json(users);
@@ -77,7 +77,7 @@ router.get("/users", async (req: Request, res: Response) => {
 });
 
 // Show user by mobile number
-router.get("/users/:mobileNumber", async (req: Request, res: Response) => {
+router.get("/:mobileNumber", async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const user = await userService.getUserByMobileNumber(mobileNumber);
@@ -89,10 +89,10 @@ router.get("/users/:mobileNumber", async (req: Request, res: Response) => {
 });
 
 // Delete user
-router.delete("/delete/:mobileNumber", async (req: Request, res: Response) => {
+router.delete("/:mobileNumber", async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
-    const user = await userService.deleteUserByMobileNumber(mobileNumber);
+    await userService.deleteUserByMobileNumber(mobileNumber);
     res.status(200).send("User deleted");
   } catch (error) {
     const typedError = error as { status: number; message: string };
