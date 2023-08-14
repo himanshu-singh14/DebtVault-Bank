@@ -57,7 +57,7 @@ router.patch("/users/:mobileNumber/details", async (req: Request, res: Response)
   try {
     const mobileNumber = req.params.mobileNumber;
     const details: any = req.body;
-    const user = await userService.changeDetails(mobileNumber, details);
+    const user = await userService.changeUserDetails(mobileNumber, details);
     res.status(200).send(`Details got changed for ${user}`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
@@ -82,6 +82,18 @@ router.get("/users/:mobileNumber", async (req: Request, res: Response) => {
     const mobileNumber = req.params.mobileNumber;
     const user = await userService.getUserByMobileNumber(mobileNumber);
     res.status(200).send(user);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
+// Delete user
+router.delete("/delete/:mobileNumber", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const user = await userService.deleteUserByMobileNumber(mobileNumber);
+    res.status(200).send("User deleted");
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status).send(typedError.message);

@@ -31,6 +31,13 @@ class UserDao {
     const users = await User.findAll();
     return users.map((user) => user.dataValues);
   }
+
+  // Delete a user by mobile number
+  async deleteUser(mobileNumber: string): Promise<number> {
+    return await User.destroy({
+      where: { mobileNumber: mobileNumber },
+    });
+  }
 }
 
 export default UserDao;

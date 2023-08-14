@@ -10,7 +10,7 @@ class UserService {
     if (!(name && mobileNumber && password)) {
       throw new BadRequestError("Invalid Credential");
     }
-    const existingUser = await this.getUserByMobileNumber(mobileNumber);
+    const existingUser = await userDao.getUserByMobileNumber(mobileNumber);
     if (existingUser) {
       throw new AlreadyExistError("User already exists with the provided mobile number.");
     }
@@ -21,7 +21,7 @@ class UserService {
   async getUserByMobileNumber(mobileNumber: string): Promise<User> {
     const user = await userDao.getUserByMobileNumber(mobileNumber);
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError("User not found with given mobile number");
     }
     return user;
   }
@@ -81,7 +81,7 @@ class UserService {
   }
 
   // Change Details
-  async changeDetails(mobileNumber: string, details: any) {
+  async changeUserDetails(mobileNumber: string, details: any) {
     const user = await this.getUserByMobileNumber(mobileNumber);
     const filteredDetails: Record<string, any> = {};
     Object.entries(details).forEach(([key, value]) => {
@@ -102,6 +102,13 @@ class UserService {
       throw new NotFoundError("Users not found");
     }
     return users;
+  }
+
+  // Delete user by mobile number
+  async deleteUserByMobileNumber(mobileNumber: string): Promise<User> {
+    const user = await this.getUserByMobileNumber(mobileNumber);
+    await userDao.deleteUser(mobileNumber);
+    return user;
   }
 }
 
