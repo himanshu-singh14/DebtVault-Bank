@@ -18,8 +18,12 @@ class UserService {
   }
 
   // Retrieves a user by their mobile number
-  async getUserByMobileNumber(mobileNumber: string): Promise<User | null> {
-    return await userDao.getUserByMobileNumber(mobileNumber);
+  async getUserByMobileNumber(mobileNumber: string): Promise<User> {
+    const user = await userDao.getUserByMobileNumber(mobileNumber);
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+    return user;
   }
 
   // User Login
@@ -28,9 +32,6 @@ class UserService {
       throw new BadRequestError("Invalid Credential");
     }
     const user = await this.getUserByMobileNumber(mobileNumber);
-    if (!user) {
-      throw new NotFoundError("User not found");
-    }
     if (user.dataValues.isLoggedIn) {
       throw new AlreadyExistError("User is already logged in.");
     }
@@ -51,9 +52,6 @@ class UserService {
       throw new BadRequestError("Please enter mobile number.");
     }
     const user = await this.getUserByMobileNumber(mobileNumber);
-    if (!user) {
-      throw new NotFoundError("User not found");
-    }
     if (!user.dataValues.isLoggedIn) {
       throw new AlreadyExistError("User is already logged out.");
     }
@@ -71,10 +69,7 @@ class UserService {
       throw new BadRequestError("Invalid Credential");
     }
     const user = await this.getUserByMobileNumber(mobileNumber);
-    if (!user) {
-      throw new NotFoundError("User not found");
-    }
-    if (!(user.dataValues.password === oldPassword)) {
+    if (user.dataValues.password === oldPassword) {
       throw new WrongPasswordError("Password didn't matched.");
     }
     const userData = {
@@ -106,7 +101,7 @@ class UserService {
     if (users.length === 0) {
       throw new NotFoundError("Users not found");
     }
-    return users
+    return users;
   }
 }
 

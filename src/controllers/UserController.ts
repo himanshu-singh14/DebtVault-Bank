@@ -40,7 +40,7 @@ router.patch("/logout/:mobileNumber", async (req: Request, res: Response) => {
 });
 
 // Change password
-router.patch("/users/:mobileNumber", async (req: Request, res: Response) => {
+router.patch("/users/:mobileNumber/change-password", async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { oldPassword, newPassword } = req.body;
@@ -70,6 +70,18 @@ router.get("/users", async (req: Request, res: Response) => {
   try {
     const users = await userService.showAllUsers();
     res.status(200).json(users);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
+// Show user by mobile number
+router.get("/users/:mobileNumber", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const user = await userService.getUserByMobileNumber(mobileNumber);
+    res.status(200).send(user);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status).send(typedError.message);
