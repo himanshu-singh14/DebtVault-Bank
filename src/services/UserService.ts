@@ -38,7 +38,7 @@ class UserService {
       throw new WrongPasswordError("Password is wrong.");
     }
     const userData = {
-      mobileNumber: user.dataValues.mobileNumber,
+      mobileNumber: mobileNumber,
       isLoggedIn: true,
     };
     await userDao.updateUser(userData);
@@ -58,7 +58,7 @@ class UserService {
       throw new AlreadyExistError("User is already logged out.");
     }
     const userData = {
-      mobileNumber: user.dataValues.mobileNumber,
+      mobileNumber: mobileNumber,
       isLoggedIn: false,
     };
     await userDao.updateUser(userData);
@@ -78,10 +78,25 @@ class UserService {
       throw new WrongPasswordError("Password didn't matched.");
     }
     const userData = {
-      mobileNumber: user.dataValues.mobileNumber,
+      mobileNumber: mobileNumber,
       password: newPassword,
     };
     await userDao.updateUser(userData);
+    return user?.dataValues.name;
+  }
+
+  // Change Details
+  async changeDetails(mobileNumber: string, details: any) {
+    const user = await this.getUserByMobileNumber(mobileNumber);
+    const filteredDetails: Record<string, any> = {};
+    Object.entries(details).forEach(([key, value]) => {
+      if (value !== null) {
+        filteredDetails[key] = value;
+      }
+    });
+    const mobile = {"mobileNumber": mobileNumber};
+    const combinedDetails = { ...mobile, ...filteredDetails };
+    await userDao.updateUser(combinedDetails);
     return user?.dataValues.name;
   }
 }

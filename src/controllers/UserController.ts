@@ -32,7 +32,7 @@ router.patch("/logout/:mobileNumber", async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const user = await userService.logout(mobileNumber);
-    res.send(`${user} Logout Successfully`);
+    res.status(200).send(`${user} Logout Successfully`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status).send(typedError.message);
@@ -45,11 +45,23 @@ router.patch("/users/:mobileNumber", async (req: Request, res: Response) => {
     const mobileNumber = req.params.mobileNumber;
     const { oldPassword, newPassword } = req.body;
     const user = await userService.changePassword(mobileNumber, oldPassword, newPassword);
-    res.send(`Password got changed for ${user}`);
+    res.status(200).send(`Password got changed for ${user}`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status).send(typedError.message);
   }
 });
 
+// Update details
+router.patch("/users/:mobileNumber/details", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const details: any = req.body;
+    const user = await userService.changeDetails(mobileNumber, details);
+    res.status(200).send(`Details got changed for ${user}`);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
 export default router;
