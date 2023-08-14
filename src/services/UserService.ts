@@ -23,7 +23,7 @@ class UserService {
   }
 
   // User Login
-  async loginUser(mobileNumber : string, password: string) {
+  async loginUser(mobileNumber: string, password: string) {
     if (!(mobileNumber && password)) {
       throw new BadRequestError("Invalid Credential");
     }
@@ -40,6 +40,26 @@ class UserService {
     const userData = {
       mobileNumber: user.dataValues.mobileNumber,
       isLoggedIn: true,
+    };
+    await userDao.updateUser(userData);
+    return user?.dataValues.name;
+  }
+
+  // User logout
+  async logout(mobileNumber: string) {
+    if (!mobileNumber) {
+      throw new BadRequestError("Please enter mobile number.");
+    }
+    const user = await this.getUserByMobileNumber(mobileNumber);
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+    if (!user.dataValues.isLoggedIn) {
+      throw new AlreadyExistError("User is already logged out.");
+    }
+    const userData = {
+      mobileNumber: user.dataValues.mobileNumber,
+      isLoggedIn: false,
     };
     await userDao.updateUser(userData);
     return user?.dataValues.name;

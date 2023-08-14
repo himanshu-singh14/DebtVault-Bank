@@ -28,4 +28,15 @@ router.patch("/login", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/logout/:mobileNumber", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const user = await userService.logout(mobileNumber);
+    res.send(`${user} Logout Successfully`);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
 export default router;
