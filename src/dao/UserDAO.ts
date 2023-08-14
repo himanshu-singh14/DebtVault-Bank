@@ -18,7 +18,7 @@ class UserDao {
     });
   }
 
-  // Update user's details
+  // Update user's details (like change password and set login/logout and other user details)
   async updateUser(userData: any) {
     const { mobileNumber, ...userDataWithoutMobileNumber } = userData;
     return await User.update(userDataWithoutMobileNumber, {

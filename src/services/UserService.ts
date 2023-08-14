@@ -23,7 +23,7 @@ class UserService {
   }
 
   // User Login
-  async loginUser(mobileNumber: string, password: string) {
+  async login(mobileNumber: string, password: string) {
     if (!(mobileNumber && password)) {
       throw new BadRequestError("Invalid Credential");
     }
@@ -60,6 +60,26 @@ class UserService {
     const userData = {
       mobileNumber: user.dataValues.mobileNumber,
       isLoggedIn: false,
+    };
+    await userDao.updateUser(userData);
+    return user?.dataValues.name;
+  }
+
+  // Change password
+  async changePassword(mobileNumber: string, oldPassword: string, newPassword: string) {
+    if (!(oldPassword && newPassword)) {
+      throw new BadRequestError("Invalid Credential");
+    }
+    const user = await this.getUserByMobileNumber(mobileNumber);
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+    if (!(user.dataValues.password === oldPassword)) {
+      throw new WrongPasswordError("Password didn't matched.");
+    }
+    const userData = {
+      mobileNumber: user.dataValues.mobileNumber,
+      password: newPassword,
     };
     await userDao.updateUser(userData);
     return user?.dataValues.name;

@@ -20,7 +20,7 @@ router.post("/register", async (req: Request, res: Response) => {
 router.patch("/login", async (req: Request, res: Response) => {
   try {
     const { mobileNumber, password } = req.body;
-    const user = await userService.loginUser(mobileNumber, password);
+    const user = await userService.login(mobileNumber, password);
     res.status(200).send(`Login Successful for ${user}`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
@@ -28,11 +28,24 @@ router.patch("/login", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/logout/:mobileNumber", async (req: Request, res: Response) => {
+router.patch("/logout/:mobileNumber", async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const user = await userService.logout(mobileNumber);
     res.send(`${user} Logout Successfully`);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
+// Change password
+router.patch("/users/:mobileNumber", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const { oldPassword, newPassword } = req.body;
+    const user = await userService.changePassword(mobileNumber, oldPassword, newPassword);
+    res.send(`Password got changed for ${user}`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status).send(typedError.message);
