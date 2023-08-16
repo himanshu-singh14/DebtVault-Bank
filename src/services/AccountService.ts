@@ -47,6 +47,21 @@ class AccountService {
     }
     return await accountDao.deleteAccount(userId);
   }
+
+  // Check balance by UPI ID and Pin
+  async checkBalance(upiId: number, pin: number): Promise<number> {
+    if (!(upiId && pin)) {
+        throw new BadRequestError("Invalid Credential");
+    }
+    const account = await accountDao.getAccountByUpiId(upiId);
+    if (!account) {
+      throw new NotFoundError("Account not found with given UPI ID");
+    } else if (!(account.dataValues.pin === pin)) {
+      throw new WrongPasswordError("PIN doesn't matched! Please try again later");
+    }
+    const balance: any = account.dataValues.balance;
+    return balance;
+  }
 }
 
 export default AccountService;

@@ -29,4 +29,16 @@ router.delete("/:mobileNumber", async (req: Request, res: Response) => {
   }
 });
 
+// Checking Account Balance
+router.get("/checkBalance", async (req: Request, res: Response) => {
+  try {
+    const { upiId, pin } = req.body;
+    const balance = await accountService.checkBalance(upiId, pin);
+    res.status(200).send(`Your Account Balance is ₹${balance}`);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
 export default router;
