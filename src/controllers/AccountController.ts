@@ -17,4 +17,16 @@ router.post("/createAccount", async (req: Request, res: Response) => {
   }
 });
 
+// Delete account
+router.delete("/:mobileNumber", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    await accountService.deleteAccountByMobileNumber(mobileNumber);
+    res.status(200).send("Account deleted");
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
 export default router;
