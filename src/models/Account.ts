@@ -5,9 +5,9 @@ interface AccountAttributes {
   id?: number;
   userId: number;     // Foreign key of User table
   upiId: string;      // Account Number(Enter mobile number here)
-  balance: number;
+  balance?: number;
   pin: number;        // 4 digit Pin
-  status: string;     // Active or Closed
+  status?: string;     // Active or Closed
 }
 
 class Account extends Model<AccountAttributes> implements AccountAttributes {
@@ -34,24 +34,21 @@ Account.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      set(value) {
-        this.setDataValue('upiId',value+'@detvault')
-      }
     },
     balance: {
       type: DataTypes.INTEGER,
-      defaultValue: 0,     // Set default value to 0
+      defaultValue: 0
     },
     pin: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
     status: {
-        type: DataTypes.STRING,
-        defaultValue: "Active",
-        validate: {
-            isIn: [["Active", "Closed"]]
-        }
+      type: DataTypes.STRING,
+      defaultValue: "Active",
+      validate: {
+        isIn: [["Active", "Closed"]],
+      },
     },
   },
   {

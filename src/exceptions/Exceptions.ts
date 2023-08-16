@@ -43,4 +43,11 @@ class AlreadyExistError extends CustomError {
   }
 }
 
-export { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError };
+class NotLoggedInError extends CustomError {
+  constructor(message: string) {
+    super(message, HttpStatus.Unauthorized);
+    this.name = message;
+  }
+}
+
+export { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, NotLoggedInError };
