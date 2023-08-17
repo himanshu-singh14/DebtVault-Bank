@@ -1,6 +1,7 @@
 import UserDao from "../dao/UserDAO";
 import AccountDao from "../dao/AccountDAO";
 import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, NotLoggedInError } from "../exceptions/Exceptions";
+import Account from "../models/Account";
 
 const userDao = new UserDao();
 const accountDao = new AccountDao();
@@ -51,7 +52,7 @@ class AccountService {
   // Check balance by UPI ID and Pin
   async checkBalance(upiId: number, pin: number): Promise<number> {
     if (!(upiId && pin)) {
-        throw new BadRequestError("Invalid Credential");
+      throw new BadRequestError("Invalid Credential");
     }
     const account = await accountDao.getAccountByUpiId(upiId);
     if (!account) {
@@ -61,6 +62,19 @@ class AccountService {
     }
     const balance: any = account.dataValues.balance;
     return balance;
+  }
+
+  // Showing account details by mobile number
+  async showAccountDetails(mobileNumber: string): Promise<Account> {
+    if (!(mobileNumber)) {
+      throw new BadRequestError("Invalid Credential");
+    }
+    const userId = await this.getUserIdByMobileNumber(mobileNumber);
+    const account = await accountDao.getAccountByUserId(userId);
+    if (!account) {
+      throw new NotFoundError("Account not found with given mobile number");
+    }
+    return account
   }
 }
 

@@ -41,4 +41,16 @@ router.get("/checkBalance", async (req: Request, res: Response) => {
   }
 });
 
+// Showing account details
+router.get("/accountDetails", async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber } = req.body;
+    const details = await accountService.showAccountDetails(mobileNumber);
+    res.status(200).send(details);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
 export default router;

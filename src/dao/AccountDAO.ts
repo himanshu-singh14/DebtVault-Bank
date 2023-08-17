@@ -35,7 +35,7 @@ class AccountDao {
 
   // Soft-delete an account by user ID from account table  --> Mocking for now
   async softDeleteAccount(userId: number): Promise<any> {
-    const what = await Account.update(
+    return await Account.update(
       { status: "Closed" },
       {
         where: { userId: userId },
