@@ -43,6 +43,13 @@ class AccountDao {
     });
   }
 
+  // Retrives an account by User ID from Account Table
+  async getAccountByUserId(userId: string): Promise<Account | null> {
+    return await Account.findOne({
+      where: { userId: userId },
+    });
+  }
+
   // Update PIN by UPI ID in Account Table
   async resetAccountPin(upiId: string, newPin: number): Promise<number[]> {
     return await Account.update(

@@ -30,10 +30,11 @@ router.delete("/:mobileNumber", async (req: Request, res: Response) => {
 });
 
 // Checking Account Balance
-router.get("/checkBalance", async (req: Request, res: Response) => {
+router.get("/:mobileNumber/checkBalance", async (req: Request, res: Response) => {
   try {
+    const mobileNumber = req.params.mobileNumber;
     const { upiId, pin } = req.body;
-    const balance = await accountService.checkBalance(upiId, pin);
+    const balance = await accountService.checkBalance(mobileNumber, upiId, pin);
     res.status(200).send(`Your Account Balance is ₹${balance}`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
@@ -54,10 +55,11 @@ router.get("/accountDetails", async (req: Request, res: Response) => {
 });
 
 // Reset account pin
-router.patch("/resetAccountPin", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/resetAccountPin", async (req: Request, res: Response) => {
   try {
+    const mobileNumber = req.params.mobileNumber;
     const { upiId, oldPin, newPin } = req.body;
-    await accountService.resetAccountPin(upiId, oldPin, newPin);
+    await accountService.resetAccountPin(mobileNumber, upiId, oldPin, newPin);
     res.status(200).send(`Your account PIN has been changed!`);
   } catch (error) {
     const typedError = error as { status: number; message: string };

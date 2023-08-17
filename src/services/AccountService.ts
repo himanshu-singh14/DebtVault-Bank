@@ -71,13 +71,13 @@ class AccountService {
   }
 
   // Check balance by UPI ID and Pin
-  async checkBalance(upiId: string, pin: number): Promise<number> {
-    if (!(upiId && pin)) {
+  async checkBalance(mobileNumber: string, upiId: string, pin: number): Promise<number> {
+    if (!(mobileNumber && upiId && pin)) {
       throw new BadRequestError("Invalid Credential");
     }
-    const mobileNumber = await this.getMobileNumberByUpiId(upiId);
     await this.checkUserByMobileNumber(mobileNumber);
     const account = await this.checkAccountByUpiId(upiId, pin);
+    await this.authenticateUserandAccount(mobileNumber, upiId);
     const balance: any = account.dataValues.balance;
     return balance;
   }
@@ -94,14 +94,24 @@ class AccountService {
   }
 
   // Reset account PIN by UPI ID
-  async resetAccountPin(upiId: string, oldPin: number, newPin: number) {
-    if (!(upiId && oldPin && newPin)) {
+  async resetAccountPin(mobileNumber: string, upiId: string, oldPin: number, newPin: number) {
+    if (!(mobileNumber && upiId && oldPin && newPin)) {
       throw new BadRequestError("Invalid Credential");
     }
-    const mobileNumber = await this.getMobileNumberByUpiId(upiId);
     await this.checkUserByMobileNumber(mobileNumber);
     await this.checkAccountByUpiId(upiId, oldPin);
+    await this.authenticateUserandAccount(mobileNumber, upiId);
     await accountDao.resetAccountPin(upiId, newPin);
+  }
+
+  // Authentication of User and Account
+  async authenticateUserandAccount(mobileNumber: string, upiId: string) {
+    const user = await accountDao.getUserByMobileNumber(mobileNumber);
+    const userId: any = user?.dataValues.id;
+    const account = await accountDao.getAccountByUserId(userId);
+    if (!account || !(account?.dataValues.upiId === upiId)) {
+        throw new WrongPasswordError("You are not authenticate to do this operation!");
+    }
   }
 }
 
