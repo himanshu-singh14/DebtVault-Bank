@@ -19,13 +19,6 @@ class AccountDao {
     });
   }
 
-  // Retrives an account by their user ID from Account Table
-  async getAccountByUserId(userId: number): Promise<Account | null> {
-    return await Account.findOne({
-      where: { userId: userId },
-    });
-  }
-
   // Delete an account by user ID from account table
   async deleteAccount(userId: number): Promise<number> {
     return await Account.destroy({
@@ -44,10 +37,22 @@ class AccountDao {
   }
 
   // Retrives an account by UPI ID from Account Table
-  async getAccountByUpiId(upiId: number): Promise<Account | null> {
+  async getAccountByUpiId(upiId: string): Promise<Account | null> {
     return await Account.findOne({
       where: { upiId: upiId },
     });
+  }
+
+  // Update PIN by UPI ID in Account Table
+  async resetAccountPin(upiId: string, newPin: number): Promise<number[]> {
+    return await Account.update(
+      {
+        pin: newPin,
+      },
+      {
+        where: { upiId: upiId },
+      }
+    );
   }
 }
 

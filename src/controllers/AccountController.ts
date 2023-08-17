@@ -53,4 +53,16 @@ router.get("/accountDetails", async (req: Request, res: Response) => {
   }
 });
 
+// Reset account pin
+router.patch("/resetAccountPin", async (req: Request, res: Response) => {
+  try {
+    const { upiId, oldPin, newPin } = req.body;
+    await accountService.resetAccountPin(upiId, oldPin, newPin);
+    res.status(200).send(`Your account PIN has been changed!`);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
 export default router;
