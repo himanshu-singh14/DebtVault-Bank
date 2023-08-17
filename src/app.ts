@@ -3,6 +3,7 @@ import userController from "./controllers/UserController";
 import accountController from "./controllers/AccountController";
 import User from "./models/User";
 import Account from './models/Account';
+import Transaction from './models/Transaction';
 // import sequelize from './sequelize.config';
 
 const app = express();
@@ -22,9 +23,18 @@ Account.sync().then(() => {
   console.log("Account table created!");
 });
 
+// Transaction model sync
+Transaction.sync().then(() => {
+  console.log("Transaction table created!");
+});
+
 // User and Acount One to One Association
 User.hasOne(Account);
 Account.belongsTo(User);
+
+// Acount and Transaction One to Many Association
+Account.hasMany(Transaction);
+Transaction.belongsTo(Account);
 
 // Start the server
 const port = 3000;
