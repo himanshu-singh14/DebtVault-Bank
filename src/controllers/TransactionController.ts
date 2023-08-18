@@ -47,4 +47,18 @@ router.patch("/:mobileNumber/transfer", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/:mobileNumber/transactionHistory", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const { upiId, pin } = req.body;
+    const history = await transactionService.transactionHistory(mobileNumber, upiId, pin);
+    // Send a successful response for withdrawing money
+    res.status(200).send(history);
+  } catch (error) {
+    // Return status code and error message for server-side error
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;

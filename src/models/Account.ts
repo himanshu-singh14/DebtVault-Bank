@@ -24,7 +24,6 @@ Account.init(
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
-      primaryKey: true,
     },
     userId: {
       type: DataTypes.INTEGER,
@@ -33,11 +32,12 @@ Account.init(
     upiId: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
       unique: true,
     },
     balance: {
       type: DataTypes.INTEGER,
-      defaultValue: 0
+      defaultValue: 0,
     },
     pin: {
       type: DataTypes.INTEGER,

@@ -1,6 +1,6 @@
 import Account from "../models/Account";
 import Transaction from "../models/Transaction";
-import { Sequelize } from "sequelize";
+import { Sequelize, Op } from "sequelize";
 
 class TransactionDao {
   // Create a transaction for Deposit/Withdrawal money
@@ -31,6 +31,13 @@ class TransactionDao {
         where: { upiId: recipientUpiId },
       }
     );
+  }
+
+  // Get Transaction History for one account
+  async transactionHistory(upiId: string): Promise<Transaction[]> {
+    return await Transaction.findAll({
+      where: { [Op.or]: [{ senderUpiId: upiId }, { recipientUpiId: upiId }] },
+    });
   }
 }
 

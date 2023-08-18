@@ -1,6 +1,7 @@
 import TransactionDao from "../dao/TransactionDAO";
 import { BadRequestError } from "../exceptions/Exceptions";
 import AccountService from "./AccountService";
+import Transaction from "../models/Transaction";
 
 const transactionDao = new TransactionDao();
 const accountService = new AccountService();
@@ -55,6 +56,18 @@ class TransactionService {
     await transactionDao.updateBalance(senderUpiId, senderNewBalance);
     await transactionDao.justAddAmount(recipientUpiId, amount);
     return senderNewBalance;
+  }
+
+  // Transaction History
+  async transactionHistory(mobileNumber: string, upiId: string, pin: number): Promise<Transaction[]> {
+    if (!(mobileNumber && upiId && pin)) {
+      throw new BadRequestError("Invalid Credential");
+    }
+    await accountService.checkUserByMobileNumber(mobileNumber);
+    await accountService.checkAccountByUpiId(upiId, pin);
+    await accountService.authenticateUserandAccount(mobileNumber, upiId);
+    const history = await transactionDao.transactionHistory(upiId);
+    return history;
   }
 }
 
