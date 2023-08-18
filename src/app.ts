@@ -1,6 +1,7 @@
 import express from 'express'
 import userController from "./controllers/UserController";
 import accountController from "./controllers/AccountController";
+import transactionController from "./controllers/TransactionController"
 import User from "./models/User";
 import Account from './models/Account';
 import Transaction from './models/Transaction';
@@ -12,6 +13,7 @@ app.use(express.json());
 // Use the controllers for specific routes
 app.use("/users", userController);
 app.use("/accounts", accountController);
+app.use("/transactions", transactionController);
 
 // User model sync
 User.sync().then(() => {
