@@ -32,6 +32,30 @@ class TransactionService {
     await transactionDao.updateBalance(upiId, newBalance);
     return newBalance;
   }
+
+  // Transfer money
+  async transferMoney(mobileNumber: string, transactionDetails: any): Promise<number> {
+    const { senderUpiId, recipientUpiId, pin, amount, transactionType } = transactionDetails;
+    if (!(mobileNumber && senderUpiId && recipientUpiId && pin && amount && transactionType)) {
+      throw new BadRequestError("Invalid Credential");
+    }
+    await accountService.checkAccountByUpiId(recipientUpiId);
+    const senderBalance = await accountService.checkBalance(mobileNumber, senderUpiId, pin);
+    const senderNewBalance = senderBalance - amount;
+    if (senderNewBalance < 0) {
+      throw new BadRequestError("Insufficient funds. Your account balance is not enough to complete this transaction.");
+    }
+    const transactionData: Record<string, any> = {};
+    Object.entries(transactionDetails).forEach(([key, value]) => {
+      if (value !== null) {
+        transactionData[key] = value;
+      }
+    });
+    await transactionDao.createTransferTransaction(transactionData);
+    await transactionDao.updateBalance(senderUpiId, senderNewBalance);
+    await transactionDao.justAddAmount(recipientUpiId, amount);
+    return senderNewBalance;
+  }
 }
 
 export default TransactionService;

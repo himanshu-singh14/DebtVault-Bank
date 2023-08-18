@@ -32,4 +32,19 @@ router.patch("/:mobileNumber/withdraw", async (req: Request, res: Response) => {
   }
 });
 
+router.patch("/:mobileNumber/transfer", async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const transactionDetails = req.body;
+    const { amount } = req.body;
+    const newBalance = await transactionService.transferMoney(mobileNumber, transactionDetails);
+    // Send a successful response for withdrawing money
+    res.status(200).send(`₹${amount} have been transfered! Your current account balance is now ₹${newBalance}`);
+  } catch (error) {
+    // Return status code and error message for server-side error
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
+});
+
 export default router;
