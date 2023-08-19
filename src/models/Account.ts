@@ -6,7 +6,7 @@ interface AccountAttributes {
   userId: number;     // Foreign key of User table
   upiId: string;      // Account Number(Enter mobile number here)
   balance?: number;
-  pin: number;        // 4 digit Pin
+  pin: string;        // 4 digit Pin
   status?: string;     // Active or Closed
 }
 
@@ -15,7 +15,7 @@ class Account extends Model<AccountAttributes> implements AccountAttributes {
   public userId!: number;
   public upiId!: string;
   public balance!: number;
-  public pin!: number;
+  public pin!: string;
   public status!: string;
 }
 
@@ -24,6 +24,7 @@ Account.init(
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
+      primaryKey: true,
     },
     userId: {
       type: DataTypes.INTEGER,
@@ -32,7 +33,6 @@ Account.init(
     upiId: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true,
       unique: true,
     },
     balance: {
@@ -40,7 +40,7 @@ Account.init(
       defaultValue: 0,
     },
     pin: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     status: {

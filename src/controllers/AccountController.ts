@@ -13,7 +13,7 @@ router.post("/createAccount", async (req: Request, res: Response) => {
   } catch (error) {
     // Return status code and error message for server-side error
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 

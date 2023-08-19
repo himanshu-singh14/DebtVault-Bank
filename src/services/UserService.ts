@@ -1,6 +1,7 @@
 import User from "../models/User";
 import UserDao from "../dao/UserDAO";
-import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError } from "../exceptions/Exceptions";
+import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError } from "../utils/Exceptions";
+import PasswordHashing from "../utils/PasswordHashing";
 
 const userDao = new UserDao();
 
@@ -14,7 +15,8 @@ class UserService {
     if (existingUser) {
       throw new AlreadyExistError("User already exists with the provided mobile number.");
     }
-    return await userDao.createUser(name, mobileNumber, password);
+    const hassedPassword = await PasswordHashing.hashPassword(password);
+    return await userDao.createUser(name, mobileNumber, hassedPassword);
   }
 
   // Retrieves a user by their mobile number
@@ -35,7 +37,8 @@ class UserService {
     if (user.dataValues.isLoggedIn) {
       throw new AlreadyExistError("User is already logged in.");
     }
-    if (!(password === user.dataValues.password)) {
+    const isMatched = await PasswordHashing.comparePassword(user.dataValues.password, password);
+    if (!isMatched) {
       throw new WrongPasswordError("Password is wrong.");
     }
     const userData = {
@@ -69,12 +72,14 @@ class UserService {
       throw new BadRequestError("Invalid Credential");
     }
     const user = await this.getUserByMobileNumber(mobileNumber);
-    if (!(user.dataValues.password === oldPassword)) {
+    const isMatched = await PasswordHashing.comparePassword(user.dataValues.password, oldPassword);
+    if (!isMatched) {
       throw new WrongPasswordError("Password didn't matched.");
     }
+    const hassedNewPassword = await PasswordHashing.hashPassword(newPassword);
     const userData = {
       mobileNumber: mobileNumber,
-      password: newPassword,
+      password: hassedNewPassword,
     };
     await userDao.updateUser(userData);
     return user?.dataValues.name;

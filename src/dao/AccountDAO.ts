@@ -3,7 +3,7 @@ import Account from "../models/Account";
 
 class AccountDao {
   // Create Account
-  async createAccount(userId: number, upiId: string, pin: number): Promise<Account> {
+  async createAccount(userId: number, upiId: string, pin: string): Promise<Account> {
     try {
       return await Account.create({ upiId: upiId, userId: userId, pin: pin });
     } catch (err) {
@@ -51,7 +51,7 @@ class AccountDao {
   }
 
   // Update PIN by UPI ID in Account Table
-  async resetAccountPin(upiId: string, newPin: number): Promise<number[]> {
+  async resetAccountPin(upiId: string, newPin: string): Promise<number[]> {
     return await Account.update(
       {
         pin: newPin,

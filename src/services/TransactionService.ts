@@ -1,5 +1,5 @@
 import TransactionDao from "../dao/TransactionDAO";
-import { BadRequestError } from "../exceptions/Exceptions";
+import { BadRequestError } from "../utils/Exceptions";
 import AccountService from "./AccountService";
 import Transaction from "../models/Transaction";
 
@@ -8,7 +8,7 @@ const accountService = new AccountService();
 
 class TransactionService {
   // Deposit money in account by UPI ID and PIN
-  async depositMoney(mobileNumber: string, upiId: string, pin: number, amount: number, transactionType: string): Promise<number> {
+  async depositMoney(mobileNumber: string, upiId: string, pin: string, amount: number, transactionType: string): Promise<number> {
     if (!(mobileNumber && upiId && pin && amount && transactionType)) {
       throw new BadRequestError("Invalid Credential");
     }
@@ -20,7 +20,7 @@ class TransactionService {
   }
 
   // Withdraw money from account by UPI ID and PIN
-  async withdrawMoney(mobileNumber: string, upiId: string, pin: number, amount: number, transactionType: string): Promise<number> {
+  async withdrawMoney(mobileNumber: string, upiId: string, pin: string, amount: number, transactionType: string): Promise<number> {
     if (!(mobileNumber && upiId && pin && amount && transactionType)) {
       throw new BadRequestError("Invalid Credential");
     }
@@ -59,7 +59,7 @@ class TransactionService {
   }
 
   // Transaction History
-  async transactionHistory(mobileNumber: string, upiId: string, pin: number): Promise<Transaction[]> {
+  async transactionHistory(mobileNumber: string, upiId: string, pin: string): Promise<Transaction[]> {
     if (!(mobileNumber && upiId && pin)) {
       throw new BadRequestError("Invalid Credential");
     }

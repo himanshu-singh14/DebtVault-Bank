@@ -34,13 +34,6 @@ Transaction.sync().then(() => {
 User.hasOne(Account);
 Account.belongsTo(User);
 
-// Acount and Transaction One to Many Association
-Account.hasMany(Transaction, { foreignKey: "senderUpiId" });
-Account.hasMany(Transaction, { foreignKey: "recipientUpiId" });
-
-Transaction.belongsTo(Account, { foreignKey: "senderUpiId" });
-Transaction.belongsTo(Account, { foreignKey: "recipientUpiId" });
-
 
 // Start the server
 const port = 3000;

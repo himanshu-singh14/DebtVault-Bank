@@ -1,15 +1,16 @@
 import UserDao from "../dao/UserDAO";
 import AccountDao from "../dao/AccountDAO";
-import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, NotLoggedInError } from "../exceptions/Exceptions";
+import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, NotLoggedInError } from "../utils/Exceptions";
 import Account from "../models/Account";
 import User from "../models/User";
+import PinHashing from "../utils/PasswordHashing";
 
 const userDao = new UserDao();
 const accountDao = new AccountDao();
 
 class AccountService {
   // Create New account with the provided information
-  async createAccount(mobileNumber: string, pin: number): Promise<string> {
+  async createAccount(mobileNumber: string, pin: string): Promise<string> {
     if (!(mobileNumber && pin)) {
       throw new BadRequestError("Invalid Credential");
     }
@@ -20,7 +21,8 @@ class AccountService {
       throw new AlreadyExistError("One Account already exists for this user.");
     }
     const userId: any = user.dataValues.id;
-    await accountDao.createAccount(userId, upiId, pin);
+    const hassedPin = await PinHashing.hashPassword(pin);
+    await accountDao.createAccount(userId, upiId, hassedPin);
     return upiId;
   }
 
@@ -36,14 +38,16 @@ class AccountService {
   }
 
   // Check account Existance and Authenticity
-  async checkAccountByUpiId(upiId: string, pin?: number): Promise<Account> {
+  async checkAccountByUpiId(upiId: string, pin?: string): Promise<Account> {
     const account = await accountDao.getAccountByUpiId(upiId);
     if (!account) {
-        throw new NotFoundError("Account not found");
+      throw new NotFoundError("Account not found");
     } else if (!pin) {
-        return account
-    } else if (!(account.dataValues.pin === pin)) {
-        throw new WrongPasswordError("PIN doesn't matched! Please try again later");
+      return account;
+    }
+    const isMatched = await PinHashing.comparePassword(account.dataValues.pin, pin);
+    if (!isMatched) {
+      throw new WrongPasswordError("PIN doesn't matched! Please try again later");
     }
     return account;
   }
@@ -61,7 +65,7 @@ class AccountService {
   // Delete account by mobile number
   async deleteAccountByMobileNumber(mobileNumber: string): Promise<any> {
     if (!mobileNumber) {
-        throw new BadRequestError("Invalid Credential");
+      throw new BadRequestError("Invalid Credential");
     }
     const user = await this.checkUserByMobileNumber(mobileNumber);
     const upiId = await this.getUpiIdByMobileNumber(mobileNumber);
@@ -71,7 +75,7 @@ class AccountService {
   }
 
   // Check balance by UPI ID and Pin
-  async checkBalance(mobileNumber: string, upiId: string, pin: number): Promise<number> {
+  async checkBalance(mobileNumber: string, upiId: string, pin: string): Promise<number> {
     if (!(mobileNumber && upiId && pin)) {
       throw new BadRequestError("Invalid Credential");
     }
@@ -94,14 +98,15 @@ class AccountService {
   }
 
   // Reset account PIN by UPI ID
-  async resetAccountPin(mobileNumber: string, upiId: string, oldPin: number, newPin: number) {
+  async resetAccountPin(mobileNumber: string, upiId: string, oldPin: string, newPin: string) {
     if (!(mobileNumber && upiId && oldPin && newPin)) {
       throw new BadRequestError("Invalid Credential");
     }
     await this.checkUserByMobileNumber(mobileNumber);
     await this.checkAccountByUpiId(upiId, oldPin);
     await this.authenticateUserandAccount(mobileNumber, upiId);
-    await accountDao.resetAccountPin(upiId, newPin);
+    const hassedNewPin = await PinHashing.hashPassword(newPin);
+    await accountDao.resetAccountPin(upiId, hassedNewPin);
   }
 
   // Authentication of User and Account
@@ -110,7 +115,7 @@ class AccountService {
     const userId: any = user?.dataValues.id;
     const account = await accountDao.getAccountByUserId(userId);
     if (!account || !(account?.dataValues.upiId === upiId)) {
-        throw new WrongPasswordError("You are not authenticate to do this operation!");
+      throw new WrongPasswordError("You are not authenticate to do this operation!");
     }
   }
 }
