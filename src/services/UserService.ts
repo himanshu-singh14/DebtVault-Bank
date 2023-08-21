@@ -24,7 +24,7 @@ class UserService {
   async getUserByMobileNumber(mobileNumber: string): Promise<User> {
     const user = await userDao.getUserByMobileNumber(mobileNumber);
     if (!user) {
-      throw new NotFoundError("User not found with given mobile number");
+      throw new NotFoundError("User not found.");
     }
     return user;
   }

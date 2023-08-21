@@ -3,13 +3,8 @@ import Transaction from "../models/Transaction";
 import { Sequelize, Op } from "sequelize";
 
 class TransactionDao {
-  // Create a transaction for Deposit/Withdrawal money
-  async createCashTransaction(upiId: string, amount: number, transactionType: string): Promise<Transaction> {
-    return await Transaction.create({ senderUpiId: upiId, recipientUpiId: upiId, amount: amount, transactionType: transactionType });
-  }
-
-  // Create a transaction for transfer money
-  async createTransferTransaction(transactionData: any): Promise<Transaction> {
+  // Create a transaction
+  async createTransaction(transactionData: any): Promise<Transaction> {
     return await Transaction.create(transactionData);
   }
 

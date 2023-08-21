@@ -1,5 +1,4 @@
 import User from "../models/User";
-import Account from "../models/Account";
 
 class UserDao {
   // Insert user to database

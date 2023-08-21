@@ -1,4 +1,3 @@
-import User from "../models/User";
 import Account from "../models/Account";
 
 class AccountDao {
@@ -10,13 +9,6 @@ class AccountDao {
       console.log(err);
       throw err;
     }
-  }
-
-  // Retrieves a user by their mobile number from User Table
-  async getUserByMobileNumber(mobileNumber: string): Promise<User | null> {
-    return await User.findOne({
-      where: { mobileNumber: mobileNumber },
-    });
   }
 
   // Delete an account by user ID from account table
@@ -44,7 +36,7 @@ class AccountDao {
   }
 
   // Retrives an account by User ID from Account Table
-  async getAccountByUserId(userId: string): Promise<Account | null> {
+  async getAccountByUserId(userId: number): Promise<Account | null> {
     return await Account.findOne({
       where: { userId: userId },
     });

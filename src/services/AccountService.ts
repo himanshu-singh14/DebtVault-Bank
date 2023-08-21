@@ -4,9 +4,11 @@ import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, 
 import Account from "../models/Account";
 import User from "../models/User";
 import PinHashing from "../utils/PasswordHashing";
+import UserService from "./UserService";
 
 const userDao = new UserDao();
 const accountDao = new AccountDao();
+const userService = new UserService();
 
 class AccountService {
   // Create New account with the provided information
@@ -14,7 +16,7 @@ class AccountService {
     if (!(mobileNumber && pin)) {
       throw new BadRequestError("Invalid Credential");
     }
-    const user = await this.checkUserByMobileNumber(mobileNumber);
+    const user = await userService.getUserByMobileNumber(mobileNumber);
     const upiId = await this.getUpiIdByMobileNumber(mobileNumber);
     const account = await accountDao.getAccountByUpiId(upiId);
     if (account) {
@@ -24,15 +26,6 @@ class AccountService {
     const hassedPin = await PinHashing.hashPassword(pin);
     await accountDao.createAccount(userId, upiId, hassedPin);
     return upiId;
-  }
-
-  // Retrieves a user by their mobile number (Check user Existance and Authenticity)
-  async checkUserByMobileNumber(mobileNumber: string): Promise<User> {
-    const user = await accountDao.getUserByMobileNumber(mobileNumber);
-    if (!user) {
-      throw new NotFoundError("User not found");
-    } 
-    return user;
   }
 
   // Check account Existance and Authenticity
@@ -65,7 +58,7 @@ class AccountService {
     if (!mobileNumber) {
       throw new BadRequestError("Invalid Credential");
     }
-    const user = await this.checkUserByMobileNumber(mobileNumber);
+    const user = await userService.getUserByMobileNumber(mobileNumber);
     const upiId = await this.getUpiIdByMobileNumber(mobileNumber);
     await this.checkAccountByUpiId(upiId);
     const userId: any = user.dataValues.id;
@@ -77,7 +70,7 @@ class AccountService {
     if (!(mobileNumber && upiId && pin)) {
       throw new BadRequestError("Invalid Credential");
     }
-    await this.checkUserByMobileNumber(mobileNumber);
+    await userService.getUserByMobileNumber(mobileNumber);
     const account = await this.checkAccountByUpiId(upiId, pin);
     await this.authenticateUserandAccount(mobileNumber, upiId);
     const balance: any = account.dataValues.balance;
@@ -89,7 +82,7 @@ class AccountService {
     if (!mobileNumber) {
       throw new BadRequestError("Invalid Credential");
     }
-    await this.checkUserByMobileNumber(mobileNumber);
+    await userService.getUserByMobileNumber(mobileNumber);
     const upiId = await this.getUpiIdByMobileNumber(mobileNumber);
     const account = await this.checkAccountByUpiId(upiId);
     return account;
@@ -100,7 +93,7 @@ class AccountService {
     if (!(mobileNumber && upiId && oldPin && newPin)) {
       throw new BadRequestError("Invalid Credential");
     }
-    await this.checkUserByMobileNumber(mobileNumber);
+    await userService.getUserByMobileNumber(mobileNumber);
     await this.checkAccountByUpiId(upiId, oldPin);
     await this.authenticateUserandAccount(mobileNumber, upiId);
     const hassedNewPin = await PinHashing.hashPassword(newPin);
@@ -109,12 +102,28 @@ class AccountService {
 
   // Authentication of User and Account
   async authenticateUserandAccount(mobileNumber: string, upiId: string) {
-    const user = await accountDao.getUserByMobileNumber(mobileNumber);
+    const user = await userDao.getUserByMobileNumber(mobileNumber);
     const userId: any = user?.dataValues.id;
     const account = await accountDao.getAccountByUserId(userId);
     if (!account || !(account?.dataValues.upiId === upiId)) {
       throw new WrongPasswordError("You are not authenticate to do this operation!");
     }
+  }
+
+  // Check Account by Mobile Number
+  async checkAccountByMobileNumber(mobileNumber: string, pin?: string): Promise<[User, Account]> {
+    const user: any = await userService.getUserByMobileNumber(mobileNumber);
+    const account = await accountDao.getAccountByUserId(user.dataValues.id);
+    if (!account) {
+      throw new NotFoundError("Account not found");
+    } else if (!pin) {
+      return [ user, account ];
+    }
+    const isMatched = await PinHashing.comparePassword(account.dataValues.pin, pin);
+    if (!isMatched) {
+      throw new WrongPasswordError("PIN doesn't matched! Please try again later");
+    }
+    return [ user, account ];
   }
 }
 

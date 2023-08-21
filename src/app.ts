@@ -2,9 +2,11 @@ import express, { NextFunction } from 'express'
 import userController from "./controllers/UserController";
 import accountController from "./controllers/AccountController";
 import transactionController from "./controllers/TransactionController"
+import loanController from "./controllers/LoanController";
 import User from "./models/User";
 import Account from './models/Account';
 import Transaction from './models/Transaction';
+import Loan from './models/Loan';
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -15,6 +17,7 @@ app.use(cookieParser());
 app.use("/users", userController);
 app.use("/accounts", accountController);
 app.use("/transactions", transactionController);
+app.use("/loans", loanController);
 
 // User model sync
 User.sync().then(() => {
@@ -27,8 +30,13 @@ Account.sync().then(() => {
 });
 
 // Transaction model sync
-Transaction.sync().then(() => {
+Transaction.sync({}).then(() => {
   console.log("Transaction table created!");
+});
+
+// Loan model sync
+Loan.sync().then(() => {
+  console.log("Loan table created!");
 });
 
 // User and Acount One to One Association

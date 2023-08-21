@@ -8,7 +8,7 @@ interface LoanAttributes {
   loanAmount: number;
   interestRate: number;
   compoundingFrequency: number;
-  loanTerm: number;
+  loanTerm: number;             // Loan Term in months
   totalPayableAmount?: number;
   totalRepaidAmount?: number;
   loanType?: string;
@@ -41,7 +41,6 @@ Loan.init(
     borrowerId: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     loanAmount: {
       type: DataTypes.INTEGER,
@@ -61,7 +60,7 @@ Loan.init(
     },
     totalPayableAmount: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
     },
     totalRepaidAmount: {
       type: DataTypes.INTEGER,

@@ -2,9 +2,11 @@ import TransactionDao from "../dao/TransactionDAO";
 import { BadRequestError } from "../utils/Exceptions";
 import AccountService from "./AccountService";
 import Transaction from "../models/Transaction";
+import UserService from "./UserService";
 
 const transactionDao = new TransactionDao();
 const accountService = new AccountService();
+const userService = new UserService();
 
 class TransactionService {
   // Deposit money in account by UPI ID and PIN
@@ -14,7 +16,13 @@ class TransactionService {
     }
     const balance = await accountService.checkBalance(mobileNumber, upiId, pin);
     const newBalance = balance + amount;
-    await transactionDao.createCashTransaction(upiId, amount, transactionType);
+    const transactionDetails = {
+      senderUpiId: upiId,
+      recipientUpiId: upiId,
+      amount: amount,
+      transactionType: transactionType,
+    };
+    await transactionDao.createTransaction(transactionDetails);
     await transactionDao.updateBalance(upiId, newBalance);
     return newBalance;
   }
@@ -29,7 +37,13 @@ class TransactionService {
     if (newBalance < 0) {
       throw new BadRequestError("Insufficient funds. Your account balance is not enough to complete this withdrawal.");
     }
-    await transactionDao.createCashTransaction(upiId, amount, transactionType);
+    const transactionDetails = {
+      senderUpiId: upiId,
+      recipientUpiId: upiId,
+      amount: amount,
+      transactionType: transactionType,
+    };
+    await transactionDao.createTransaction(transactionDetails);
     await transactionDao.updateBalance(upiId, newBalance);
     return newBalance;
   }
@@ -52,7 +66,8 @@ class TransactionService {
         transactionData[key] = value;
       }
     });
-    await transactionDao.createTransferTransaction(transactionData);
+
+    await transactionDao.createTransaction(transactionData);
     await transactionDao.updateBalance(senderUpiId, senderNewBalance);
     await transactionDao.justAddAmount(recipientUpiId, amount);
     return senderNewBalance;
@@ -63,11 +78,16 @@ class TransactionService {
     if (!(mobileNumber && upiId && pin)) {
       throw new BadRequestError("Invalid Credential");
     }
-    await accountService.checkUserByMobileNumber(mobileNumber);
+    await userService.getUserByMobileNumber(mobileNumber);
     await accountService.checkAccountByUpiId(upiId, pin);
     await accountService.authenticateUserandAccount(mobileNumber, upiId);
     const history = await transactionDao.transactionHistory(upiId);
     return history;
+  }
+
+  async createLoanTransaction(lenderUpiId: string, borrowerUpiId: string, loanAmount: number, transactionType: string) {
+
+    // await transactionDao.createTransaction(transactionData);
   }
 }
 
