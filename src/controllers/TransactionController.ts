@@ -1,10 +1,11 @@
 import express, { Request, Response } from "express";
 import TransactionService from "../services/TransactionService";
+import authenticated from "../middlewares/Authentication";
 
 const router = express.Router();
 const transactionService = new TransactionService();
 
-router.patch("/:mobileNumber/deposit", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/deposit", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { upiId, pin, amount, transactionType } = req.body;
@@ -18,7 +19,7 @@ router.patch("/:mobileNumber/deposit", async (req: Request, res: Response) => {
   }
 });
 
-router.patch("/:mobileNumber/withdraw", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/withdraw", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { upiId, pin, amount, transactionType } = req.body;
@@ -32,7 +33,7 @@ router.patch("/:mobileNumber/withdraw", async (req: Request, res: Response) => {
   }
 });
 
-router.patch("/:mobileNumber/transfer", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/transfer", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const transactionDetails = req.body;
@@ -47,7 +48,7 @@ router.patch("/:mobileNumber/transfer", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/:mobileNumber/transactionHistory", async (req: Request, res: Response) => {
+router.get("/:mobileNumber/transactionHistory", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { upiId, pin } = req.body;

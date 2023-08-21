@@ -1,14 +1,15 @@
-import express from 'express'
+import express, { NextFunction } from 'express'
 import userController from "./controllers/UserController";
 import accountController from "./controllers/AccountController";
 import transactionController from "./controllers/TransactionController"
 import User from "./models/User";
 import Account from './models/Account';
 import Transaction from './models/Transaction';
-// import sequelize from './sequelize.config';
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 // Use the controllers for specific routes
 app.use("/users", userController);

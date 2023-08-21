@@ -31,9 +31,7 @@ class AccountService {
     const user = await accountDao.getUserByMobileNumber(mobileNumber);
     if (!user) {
       throw new NotFoundError("User not found");
-    } else if (!(user.dataValues.isLoggedIn === true)) {
-      throw new NotLoggedInError("User is not Logged In");
-    }
+    } 
     return user;
   }
 

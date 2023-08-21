@@ -1,10 +1,11 @@
 import express, { Request, Response } from "express";
 import AccountService from "../services/AccountService";
+import authenticated from "../middlewares/Authentication";
 
 const router = express.Router();
 const accountService = new AccountService();
 
-router.post("/createAccount", async (req: Request, res: Response) => {
+router.post("/createAccount", authenticated, async (req: Request, res: Response) => {
   try {
     const { mobileNumber, pin } = req.body;
     const upiId = await accountService.createAccount(mobileNumber, pin);
@@ -18,7 +19,7 @@ router.post("/createAccount", async (req: Request, res: Response) => {
 });
 
 // Delete account
-router.delete("/:mobileNumber", async (req: Request, res: Response) => {
+router.delete("/:mobileNumber", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     await accountService.deleteAccountByMobileNumber(mobileNumber);
@@ -30,7 +31,7 @@ router.delete("/:mobileNumber", async (req: Request, res: Response) => {
 });
 
 // Checking Account Balance
-router.get("/:mobileNumber/checkBalance", async (req: Request, res: Response) => {
+router.get("/:mobileNumber/checkBalance", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { upiId, pin } = req.body;
@@ -43,7 +44,7 @@ router.get("/:mobileNumber/checkBalance", async (req: Request, res: Response) =>
 });
 
 // Showing account details
-router.get("/accountDetails", async (req: Request, res: Response) => {
+router.get("/accountDetails", authenticated, async (req: Request, res: Response) => {
   try {
     const { mobileNumber } = req.body;
     const details = await accountService.showAccountDetails(mobileNumber);
@@ -55,7 +56,7 @@ router.get("/accountDetails", async (req: Request, res: Response) => {
 });
 
 // Reset account pin
-router.patch("/:mobileNumber/resetAccountPin", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/resetAccountPin", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { upiId, oldPin, newPin } = req.body;

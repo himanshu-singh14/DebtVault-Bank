@@ -1,5 +1,6 @@
 import express, {Request, Response} from "express";
 import UserService from "../services/UserService";
+import authenticated from "../middlewares/Authentication";
 
 const router = express.Router();
 const userService = new UserService();
@@ -12,27 +13,27 @@ router.post("/register", async (req: Request, res: Response) => {
     res.status(201).send(`Registration Successful for ${user?.dataValues.name}`);
   } catch (error) {
     // Return status code and error message for server-side error
-     const typedError = error as { status: number; message: string };
-     res.status(typedError.status).send(typedError.message);
-    }
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status).send(typedError.message);
+  }
 });
 
 router.patch("/login", async (req: Request, res: Response) => {
   try {
     const { mobileNumber, password } = req.body;
-    const user = await userService.login(mobileNumber, password);
-    res.status(200).send(`Login Successful for ${user}`);
+    const token = await userService.login(mobileNumber, password);
+    res.status(200).cookie("token", token).send(`Login Successful! and here is your token for authentication -> ${token}`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status).send(typedError.message);
   }
 });
 
-router.patch("/logout/:mobileNumber", async (req: Request, res: Response) => {
+router.patch("/logout/:mobileNumber", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const user = await userService.logout(mobileNumber);
-    res.status(200).send(`${user} Logout Successfully`);
+    res.status(200).clearCookie("token").send(`${user} Logout Successfully`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status).send(typedError.message);
@@ -40,7 +41,7 @@ router.patch("/logout/:mobileNumber", async (req: Request, res: Response) => {
 });
 
 // Change password
-router.patch("/:mobileNumber/change-password", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/change-password", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { oldPassword, newPassword } = req.body;
@@ -53,7 +54,7 @@ router.patch("/:mobileNumber/change-password", async (req: Request, res: Respons
 });
 
 // Update details
-router.patch("/:mobileNumber/details", async (req: Request, res: Response) => {
+router.patch("/:mobileNumber/details", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const details: any = req.body;
@@ -77,19 +78,19 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 // Show user by mobile number
-router.get("/:mobileNumber", async (req: Request, res: Response) => {
+router.get("/:mobileNumber", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const user = await userService.getUserByMobileNumber(mobileNumber);
     res.status(200).send(user);
   } catch (error) {
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 
 // Delete user
-router.delete("/:mobileNumber", async (req: Request, res: Response) => {
+router.delete("/:mobileNumber", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     await userService.deleteUserByMobileNumber(mobileNumber);

@@ -2,6 +2,7 @@ import User from "../models/User";
 import UserDao from "../dao/UserDAO";
 import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError } from "../utils/Exceptions";
 import PasswordHashing from "../utils/PasswordHashing";
+import CreateToken from "../utils/Authentication";
 
 const userDao = new UserDao();
 
@@ -28,25 +29,18 @@ class UserService {
     return user;
   }
 
-  // User Login
+  // User Login and generate token
   async login(mobileNumber: string, password: string) {
     if (!(mobileNumber && password)) {
       throw new BadRequestError("Invalid Credential");
     }
     const user = await this.getUserByMobileNumber(mobileNumber);
-    if (user.dataValues.isLoggedIn) {
-      throw new AlreadyExistError("User is already logged in.");
-    }
     const isMatched = await PasswordHashing.comparePassword(user.dataValues.password, password);
     if (!isMatched) {
       throw new WrongPasswordError("Password is wrong.");
     }
-    const userData = {
-      mobileNumber: mobileNumber,
-      isLoggedIn: true,
-    };
-    await userDao.updateUser(userData);
-    return user?.dataValues.name;
+    const token: string = CreateToken.createTokenForUser(user);
+    return token;
   }
 
   // User logout
@@ -55,14 +49,6 @@ class UserService {
       throw new BadRequestError("Please enter mobile number.");
     }
     const user = await this.getUserByMobileNumber(mobileNumber);
-    if (!user.dataValues.isLoggedIn) {
-      throw new AlreadyExistError("User is already logged out.");
-    }
-    const userData = {
-      mobileNumber: mobileNumber,
-      isLoggedIn: false,
-    };
-    await userDao.updateUser(userData);
     return user?.dataValues.name;
   }
 
