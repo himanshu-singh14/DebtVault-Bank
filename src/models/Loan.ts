@@ -1,0 +1,86 @@
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../sequelize.config";
+
+interface LoanAttributes {
+  id?: number;
+  lenderId: string;
+  borrowerId: string;
+  loanAmount: number;
+  interestRate: number;
+  compoundingFrequency: number;
+  loanTerm: number;
+  totalPayableAmount?: number;
+  totalRepaidAmount?: number;
+  loanType?: string;
+}
+
+class Loan extends Model<LoanAttributes> implements LoanAttributes {
+  public id!: number;
+  public lenderId!: string;
+  public borrowerId!: string;
+  public loanAmount!: number;
+  public interestRate!: number;
+  public compoundingFrequency!: number;
+  public loanTerm!: number;
+  public totalPayableAmount!: number;
+  public totalRepaidAmount!: number;
+  public loanType!: string;
+}
+
+Loan.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    lenderId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    borrowerId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    loanAmount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    interestRate: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    compoundingFrequency: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    loanTerm: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    totalPayableAmount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    totalRepaidAmount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    loanType: {
+      type: DataTypes.STRING,
+      defaultValue: "Personal",
+      validate: {
+        isIn: [["Personal", "Payday", "Emergency"]],
+      },
+    },
+  },
+  {
+    sequelize,
+    tableName: "loans",
+    timestamps: true,
+    modelName: "Loan",
+  }
+);
+
+export default Loan;

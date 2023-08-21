@@ -7,6 +7,7 @@ interface TransactionAttributes {
   recipientUpiId: string;
   amount: number;
   transactionType: string;
+  loanId?: number;
   purpose?: string;
   status?: string;
 }
@@ -17,6 +18,7 @@ class Transaction extends Model<TransactionAttributes> implements TransactionAtt
   public recipientUpiId!: string;
   public amount!: number;
   public transactionType!: string;
+  public loanId!: number;
   public purpose!: string;
   public status!: string;
 }
@@ -46,6 +48,10 @@ Transaction.init(
       validate: {
         isIn: [["Withdrawal", "Deposite", "Transfer", "Loan", "Loan Repayment"]],
       },
+    },
+    loanId: {
+      type: DataTypes.INTEGER,
+      defaultValue: null,
     },
     purpose: {
       type: DataTypes.STRING,
