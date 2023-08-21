@@ -3,8 +3,8 @@ import sequelize from "../sequelize.config";
 
 interface LoanAttributes {
   id?: number;
-  lenderId: string;
-  borrowerId: string;
+  lenderId: number;
+  borrowerId: number;
   loanAmount: number;
   interestRate: number;
   compoundingFrequency: number;
@@ -16,8 +16,8 @@ interface LoanAttributes {
 
 class Loan extends Model<LoanAttributes> implements LoanAttributes {
   public id!: number;
-  public lenderId!: string;
-  public borrowerId!: string;
+  public lenderId!: number;
+  public borrowerId!: number;
   public loanAmount!: number;
   public interestRate!: number;
   public compoundingFrequency!: number;
@@ -35,11 +35,11 @@ Loan.init(
       primaryKey: true,
     },
     lenderId: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     borrowerId: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     loanAmount: {
