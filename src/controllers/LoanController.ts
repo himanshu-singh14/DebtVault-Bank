@@ -34,8 +34,8 @@ router.post("/loanRepayment", authenticated, async (req: Request, res: Response)
 router.get("/showAllLoans", authenticated, async (req: Request, res: Response) => {
   try {
     const { mobileNumber } = req.body;
-    const [loans, loansMessage] = await loanService.showAllLoans(mobileNumber);
-    res.status(200).send(`${loansMessage}\n\n ${loans}`);
+    const loanData = await loanService.showAllLoans(mobileNumber);
+    res.status(200).send(loanData);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status || 500).send(typedError.message);
@@ -45,8 +45,8 @@ router.get("/showAllLoans", authenticated, async (req: Request, res: Response) =
 router.get("/showAllBorrowedLoans", authenticated, async (req: Request, res: Response) => {
   try {
     const { mobileNumber } = req.body;
-    const [borrowedLoans, borrowedLoansMessage] = await loanService.showAllBorrowedLoans(mobileNumber);
-    res.status(200).send(`${borrowedLoansMessage}\n\n ${borrowedLoans}`);
+    const borrowedLoanData = await loanService.showAllBorrowedLoans(mobileNumber);
+    res.status(200).send(borrowedLoanData);
   } catch (error) {
     const typedError = error as { status: number; message: string };
     res.status(typedError.status || 500).send(typedError.message);

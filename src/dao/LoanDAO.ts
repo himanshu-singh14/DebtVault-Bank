@@ -38,7 +38,7 @@ class LoanDao {
   }
 
   // Get all repayment transactions for borrower from loan id
-  async repaymentTransactions(loanId: number): Promise<Transaction[]> {
+  async repaymentTransactions(loanId: number): Promise<Transaction[] | null> {
     return await Transaction.findAll({
         attributes: ["amount", "createdAt"],
         where: {loanId: loanId, transactionType: "Loan Repayment"}
