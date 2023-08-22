@@ -98,18 +98,15 @@ class LoanService {
 
     const whereDetails = { lenderId: userId };
     const allLoans = await loanDao.getAllLoans(whereDetails);
-    if (!allLoans) {
-      throw new AllFine("You currently do not have any active loans!");
-    }
-    const rawLoanData = allLoans.map((loan) => loan.dataValues);
-    const loansData = JSON.stringify(rawLoanData, null, 2);
-    let loansMessage: string;
 
-    if (!allLoans.length) {
-      loansMessage = "Currently, you have not provided any loan!";
+    let loansMessage: string;
+    if (!allLoans) {
+      throw new AllFine("Currently, you have not provided any loan!");
     } else {
       loansMessage = `Currently, you have provided ${allLoans.length} loans!`;
     }
+    const rawLoanData = allLoans.map((loan) => loan.dataValues);
+    const loansData = JSON.stringify(rawLoanData, null, 2);
     return [loansData, loansMessage];
   }
 
@@ -120,19 +117,44 @@ class LoanService {
 
     const whereDetails = { borrowerId: userId };
     const allBorrowedLoans = await loanDao.getAllLoans(whereDetails);
-    if (!allBorrowedLoans) {
-      throw new AllFine("You currently do not have any active loans!");
-    }
-    const rawLoanData = allBorrowedLoans.map((loan) => loan.dataValues);
-    const borrowedLoansData = JSON.stringify(rawLoanData, null, 2);
-    let borrowedLoansMessage: string;
 
-    if (!allBorrowedLoans.length) {
-      borrowedLoansMessage = "Currently, you have not borrowed any loan!";
+    let borrowedLoansMessage: string;
+    if (!allBorrowedLoans) {
+      throw new AllFine("Currently, you do not have any active bowwored loans!");
     } else {
       borrowedLoansMessage = `Currently, you have borrowed ${allBorrowedLoans.length} loans!`;
     }
+    const rawLoanData = allBorrowedLoans.map((loan) => loan.dataValues);
+    const borrowedLoansData = JSON.stringify(rawLoanData, null, 2);
     return [borrowedLoansData, borrowedLoansMessage];
+  }
+
+  // Show all repayment transaction of user have borrowed.
+  async showAllRepaymentTransaction(mobileNumber: string): Promise<any> {
+    const [user, account] = await accountService.checkAccountByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+
+    const whereDetails = { borrowerId: userId };
+    const allBorrowedLoans = await loanDao.getAllLoans(whereDetails);
+
+    if (allBorrowedLoans?.length === 0) {
+      throw new AllFine("Currently, you do not have any active bowwored loans!");
+    } 
+    const borrowedLoanIds: any = allBorrowedLoans?.map((loan) => loan.dataValues.id);
+
+    const combinedData = [];
+
+    for (const loanId of borrowedLoanIds) {
+        const allRawTransactions = await loanDao.repaymentTransactions(loanId);
+        const allTransactions = allRawTransactions.map((rawTransactions) => rawTransactions.dataValues);
+
+        combinedData.push({
+          loanId,
+          totalInstallments: allTransactions.length,
+          transactions: allTransactions,
+        });
+    }
+    return combinedData;
   }
 }
 

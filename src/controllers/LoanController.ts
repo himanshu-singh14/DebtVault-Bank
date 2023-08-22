@@ -53,4 +53,15 @@ router.get("/showAllBorrowedLoans", authenticated, async (req: Request, res: Res
   }
 });
 
+router.get("/showAllRepaymentTransaction", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber } = req.body;
+    const allTransactions = await loanService.showAllRepaymentTransaction(mobileNumber);
+    res.status(200).json(allTransactions);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;

@@ -1,6 +1,7 @@
 import { Op, Sequelize } from "sequelize";
 import Loan from "../models/Loan";
 import User from "../models/User";
+import Transaction from "../models/Transaction";
 
 class LoanDao {
   // Create Loan
@@ -31,8 +32,16 @@ class LoanDao {
       where: whereDetails,
       include: {
         model: User,
-        attributes: ["name", "mobileNumber"]
+        attributes: ["name", "mobileNumber"],
       },
+    });
+  }
+
+  // Get all repayment transactions for borrower from loan id
+  async repaymentTransactions(loanId: number): Promise<Transaction[]> {
+    return await Transaction.findAll({
+        attributes: ["amount", "createdAt"],
+        where: {loanId: loanId, transactionType: "Loan Repayment"}
     });
   }
 }
