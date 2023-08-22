@@ -43,6 +43,12 @@ Loan.sync().then(() => {
 User.hasOne(Account);
 Account.belongsTo(User);
 
+// User and Loan One to Many Association
+User.hasMany(Loan, { foreignKey: "lenderId" });
+Loan.belongsTo(User, { foreignKey: "lenderId" });
+
+User.hasMany(Loan, { foreignKey: "borrowerId" });
+Loan.belongsTo(User, { foreignKey: "borrowerId" });
 
 // Start the server
 const port = 3000;

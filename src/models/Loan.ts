@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../sequelize.config";
+import User from "./User";
 
 interface LoanAttributes {
   id?: number;

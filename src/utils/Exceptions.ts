@@ -3,6 +3,7 @@ enum HttpStatus {
   BadRequest = 400,
   Unauthorized = 401,
   AlreadyExist = 409,
+  Ok = 200,
 }
 
 class CustomError extends Error {
@@ -50,4 +51,11 @@ class NotLoggedInError extends CustomError {
   }
 }
 
-export { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, NotLoggedInError };
+class AllFine extends CustomError {
+  constructor(message: string) {
+    super(message, HttpStatus.Ok);
+    this.name = message;
+  }
+}
+
+export { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, NotLoggedInError, AllFine };

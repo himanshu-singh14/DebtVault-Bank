@@ -1,5 +1,6 @@
 import LoanDao from "../dao/LoanDAO";
-import { BadRequestError, NotFoundError } from "../utils/Exceptions";
+import Loan from "../models/Loan";
+import { AllFine, BadRequestError, NotFoundError } from "../utils/Exceptions";
 import AccountService from "./AccountService";
 import TransactionService from "./TransactionService";
 
@@ -66,11 +67,14 @@ class LoanService {
     const lenderUpiId = lenderAccount.dataValues.upiId;
     const borrowerUpiId = borrowerAccount.dataValues.upiId;
 
-    const loan = await loanDao.checkForSameLender(lender.dataValues.id);
-    if (!loan) {
-        throw new NotFoundError("Lender has no Active Loan.");
-    } else if (!(loan.dataValues.lenderId === lender.dataValues.id)) {
-        throw new BadRequestError("Loan Id doesn't belongs to Lender.");
+    // Check for same lender
+    const loans = await loanDao.getLoans(lender.dataValues.id);
+    if (!loans) {
+      throw new NotFoundError("Lender has no Active Loan.");
+    }
+    const loanIds = loans.map((loan) => loan.dataValues.id);
+    if (!loanIds.includes(loanId)) {
+      throw new BadRequestError("Loan Id doesn't belongs to Lender.");
     }
 
     const transactionDetails = {
@@ -85,6 +89,50 @@ class LoanService {
     const senderNewBalance = await transactionService.transferMoney(borrowerMobileNumber, transactionDetails);
     await loanDao.updateLoan(amount, loanId);
     return senderNewBalance;
+  }
+
+  // Show all Loan which user have provided.
+  async showAllLoans(mobileNumber: string): Promise<[any, string]> {
+    const [user, account] = await accountService.checkAccountByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+
+    const whereDetails = { lenderId: userId };
+    const allLoans = await loanDao.getAllLoans(whereDetails);
+    if (!allLoans) {
+      throw new AllFine("You currently do not have any active loans!");
+    }
+    const rawLoanData = allLoans.map((loan) => loan.dataValues);
+    const loansData = JSON.stringify(rawLoanData, null, 2);
+    let loansMessage: string;
+
+    if (!allLoans.length) {
+      loansMessage = "Currently, you have not provided any loan!";
+    } else {
+      loansMessage = `Currently, you have provided ${allLoans.length} loans!`;
+    }
+    return [loansData, loansMessage];
+  }
+
+  // Show all Loan which user have borrowed.
+  async showAllBorrowedLoans(mobileNumber: string): Promise<[string, string]> {
+    const [user, account] = await accountService.checkAccountByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+
+    const whereDetails = { borrowerId: userId };
+    const allBorrowedLoans = await loanDao.getAllLoans(whereDetails);
+    if (!allBorrowedLoans) {
+      throw new AllFine("You currently do not have any active loans!");
+    }
+    const rawLoanData = allBorrowedLoans.map((loan) => loan.dataValues);
+    const borrowedLoansData = JSON.stringify(rawLoanData, null, 2);
+    let borrowedLoansMessage: string;
+
+    if (!allBorrowedLoans.length) {
+      borrowedLoansMessage = "Currently, you have not borrowed any loan!";
+    } else {
+      borrowedLoansMessage = `Currently, you have borrowed ${allBorrowedLoans.length} loans!`;
+    }
+    return [borrowedLoansData, borrowedLoansMessage];
   }
 }
 

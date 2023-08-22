@@ -1,5 +1,6 @@
-import { Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import Loan from "../models/Loan";
+import User from "../models/User";
 
 class LoanDao {
   // Create Loan
@@ -18,9 +19,20 @@ class LoanDao {
   }
 
   // Check if lender is given loan with same loan id
-  async checkForSameLender(lenderId: any): Promise<Loan | null> {
-    return await Loan.findOne({
+  async getLoans(lenderId: any): Promise<Loan[] | null> {
+    return await Loan.findAll({
       where: { lenderId: lenderId },
+    });
+  }
+
+  // Get all loans for user from user Id
+  async getAllLoans(whereDetails: any): Promise<Loan[] | null> {
+    return await Loan.findAll({
+      where: whereDetails,
+      include: {
+        model: User,
+        attributes: ["name", "mobileNumber"]
+      },
     });
   }
 }
