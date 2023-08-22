@@ -1,6 +1,5 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../sequelize.config";
-import User from "./User";
 
 interface LoanAttributes {
   id?: number;
@@ -13,6 +12,7 @@ interface LoanAttributes {
   totalPayableAmount?: number;
   totalRepaidAmount?: number;
   loanType?: string;
+  loanStatus: string;
 }
 
 class Loan extends Model<LoanAttributes> implements LoanAttributes {
@@ -26,6 +26,7 @@ class Loan extends Model<LoanAttributes> implements LoanAttributes {
   public totalPayableAmount!: number;
   public totalRepaidAmount!: number;
   public loanType!: string;
+  public loanStatus!: string;
 }
 
 Loan.init(
@@ -72,6 +73,13 @@ Loan.init(
       defaultValue: "Personal",
       validate: {
         isIn: [["Personal", "Payday", "Emergency"]],
+      },
+    },
+    loanStatus: {
+      type: DataTypes.STRING,
+      defaultValue: "Active",
+      validate: {
+        isIn: [["Active", "Closed"]],
       },
     },
   },

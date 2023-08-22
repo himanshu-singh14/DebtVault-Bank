@@ -64,4 +64,15 @@ router.get("/showAllRepaymentTransaction", authenticated, async (req: Request, r
   }
 });
 
+router.patch("/settleLoan", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber, loanId } = req.body;
+    await loanService.settleLoan(mobileNumber, loanId);
+    res.status(200).send("Laon has been settled!");
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;

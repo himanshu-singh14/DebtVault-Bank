@@ -1,3 +1,4 @@
+import { Sequelize } from "sequelize";
 import LoanDao from "../dao/LoanDAO";
 import Loan from "../models/Loan";
 import { AllFine, BadRequestError, NotFoundError } from "../utils/Exceptions";
@@ -87,7 +88,9 @@ class LoanService {
     };
 
     const senderNewBalance = await transactionService.transferMoney(borrowerMobileNumber, transactionDetails);
-    await loanDao.updateLoan(amount, loanId);
+
+    const updateDetails = { totalRepaidAmount: Sequelize.literal(`totalRepaidAmount + ${amount}`) };
+    await loanDao.updateLoan(updateDetails, loanId);
     return senderNewBalance;
   }
 
@@ -96,7 +99,7 @@ class LoanService {
     const [user, account] = await accountService.checkAccountByMobileNumber(mobileNumber);
     const userId: any = user.dataValues.id;
 
-    const whereDetails = { lenderId: userId };
+    const whereDetails = { lenderId: userId, loanStatus: "Active" };
     const allLoans = await loanDao.getAllLoans(whereDetails);
 
     let loanMessage: string;
@@ -118,8 +121,8 @@ class LoanService {
   async showAllBorrowedLoans(mobileNumber: string): Promise<any> {
     const [user, account] = await accountService.checkAccountByMobileNumber(mobileNumber);
     const userId: any = user.dataValues.id;
- 
-    const whereDetails = { borrowerId: userId };
+
+    const whereDetails = { borrowerId: userId, loanStatus: "Active" };
     const allBorrowedLoans = await loanDao.getAllLoans(whereDetails);
 
     let borrowedLoanMessage: string;
@@ -142,27 +145,54 @@ class LoanService {
     const [user, account] = await accountService.checkAccountByMobileNumber(mobileNumber);
     const userId: any = user.dataValues.id;
 
-    const whereDetails = { borrowerId: userId };
+    const whereDetails = { borrowerId: userId, loanStatus: "Active" };
     const allBorrowedLoans = await loanDao.getAllLoans(whereDetails);
 
     if (allBorrowedLoans?.length === 0) {
       throw new AllFine("Currently, you do not have any active bowwored loans!");
-    } 
+    }
     const borrowedLoanIds: any = allBorrowedLoans?.map((loan) => loan.dataValues.id);
 
     const combinedData = [];
 
     for (const loanId of borrowedLoanIds) {
-        const allRawTransactions = await loanDao.repaymentTransactions(loanId);
-        const allTransactions = allRawTransactions?.map((rawTransactions) => rawTransactions.dataValues);
+      const allRawTransactions = await loanDao.repaymentTransactions(loanId);
+      const allTransactions = allRawTransactions?.map((rawTransactions) => rawTransactions.dataValues);
 
-        combinedData.push({
-          loanId,
-          totalInstallments: allTransactions?.length,
-          transactions: allTransactions,
-        });
+      combinedData.push({
+        loanId,
+        totalInstallments: allTransactions?.length,
+        transactions: allTransactions,
+      });
     }
     return combinedData;
+  }
+
+  // Settle Loan 
+  async settleLoan(lenderMobileNumber: string, loanId: number) {
+    const [lender, account] = await accountService.checkAccountByMobileNumber(lenderMobileNumber);
+    const lenderId = lender.dataValues.id;
+
+    const loans: any = await loanDao.getLoans(lenderId);
+    if (loans?.length === 0) {
+      throw new NotFoundError("Lender has no Active Loan.");
+    }
+    const loan = loans.filter((eachLoan: any) => eachLoan.dataValues.id === loanId);
+    // Check for same lender
+    if (loan.length === 0) {
+      throw new BadRequestError("Loan Id doesn't belongs to Lender.");
+    }
+
+    const totalPayableAmount = loan[0].dataValues.totalPayableAmount;
+    const totalRepaidAmount = loan[0].dataValues.totalRepaidAmount;
+
+    if (!(totalPayableAmount === totalRepaidAmount)) {
+      throw new BadRequestError("All Installments have not been paid! Total Payable Amount should be equal to Total Repaid Amount");
+    }
+    const updateDetails = {
+      loanStatus: "Closed"
+    };
+    await loanDao.updateLoan(updateDetails, loanId);
   }
 }
 
