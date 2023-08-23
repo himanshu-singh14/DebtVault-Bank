@@ -84,11 +84,6 @@ class TransactionService {
     const history = await transactionDao.transactionHistory(upiId);
     return history;
   }
-
-  async createLoanTransaction(lenderUpiId: string, borrowerUpiId: string, loanAmount: number, transactionType: string) {
-
-    // await transactionDao.createTransaction(transactionData);
-  }
 }
 
 export default TransactionService;
