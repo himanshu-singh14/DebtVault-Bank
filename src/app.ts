@@ -3,6 +3,7 @@ import userController from "./controllers/UserController";
 import accountController from "./controllers/AccountController";
 import transactionController from "./controllers/TransactionController"
 import loanController from "./controllers/LoanController";
+import loanActivityController from "./controllers/LoanActivityController";
 import User from "./models/User";
 import Account from './models/Account';
 import Transaction from './models/Transaction';
@@ -19,6 +20,7 @@ app.use("/users", userController);
 app.use("/accounts", accountController);
 app.use("/transactions", transactionController);
 app.use("/loans", loanController);
+app.use("/loanActivities", loanActivityController);
 
 // User model sync
 User.sync().then(() => {
