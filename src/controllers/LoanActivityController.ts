@@ -19,4 +19,16 @@ router.post("/createLoanActivity", authenticated, async (req: Request, res: Resp
   }
 });
 
+// Update Existing Loan Activity for Offering or Requesting Loan
+router.patch("/updateLoanActivity", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber, id, ...otherDetails } = req.body;
+    await activityLoanService.updateLoanActivity(mobileNumber, id, otherDetails);
+    res.status(200).send("Your details have been updated!");
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;

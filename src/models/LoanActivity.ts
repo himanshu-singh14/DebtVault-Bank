@@ -8,7 +8,7 @@ interface LoanActivityAttributes {
   loanAmount: number;
   interestRate: number;
   loanTerm: number;              // Loan Term in months
-  status: string;
+  status?: string;
 }
 
 class LoanActivity extends Model<LoanActivityAttributes> implements LoanActivityAttributes {
