@@ -55,4 +55,16 @@ router.get("/searchLoanActivity", authenticated, async (req: Request, res: Respo
   }
 });
 
+// Show interest on loan offers and loan requests
+router.post("/showInterest", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber, loanActivityId } = req.body;
+    await activityLoanService.showInterest(mobileNumber, loanActivityId);
+    res.status(201).send("Your interest has been submitted!");
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;

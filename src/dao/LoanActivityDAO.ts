@@ -1,3 +1,4 @@
+import InterestActivity from "../models/InterestActivity";
 import LoanActivity from "../models/LoanActivity";
 
 class LoanActivityDao {
@@ -32,6 +33,21 @@ class LoanActivityDao {
     return await LoanActivity.findAll({
       where: whereConditions,
       attributes: ["id", "userId", "loanAmount", "interestRate", "loanTerm", "createdAt"],
+    });
+  }
+
+  // Create Interest Activity
+  async showInterest(userId: number, loanActivityId: number) {
+    return await InterestActivity.create({
+      userId: userId,
+      loanActivityId: loanActivityId,
+    });
+  }
+
+  // Check Interest Activity
+  async checkInterest(userId: number, loanActivityId: number): Promise<InterestActivity | null> {
+    return await InterestActivity.findOne({
+      where: { userId: userId, loanActivityId: loanActivityId },
     });
   }
 }

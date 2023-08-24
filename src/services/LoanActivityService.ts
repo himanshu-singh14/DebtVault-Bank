@@ -48,41 +48,41 @@ class LoanActivityService {
 
     for (const key in details) {
       const value = details[key];
-      if(value) {
+      if (value) {
         switch (key) {
-            case "activityTypeOffer":
+          case "activityTypeOffer":
             whereConditions.activityType = "Offer";
             break;
-            case "activityTypeRequest":
+          case "activityTypeRequest":
             whereConditions.activityType = "Request";
             break;
-            case "lessThanLoanAmount":
+          case "lessThanLoanAmount":
             whereConditions.loanAmount = { [Op.lte]: [value] };
             break;
-            case "greaterThanLoanAmount":
+          case "greaterThanLoanAmount":
             whereConditions.loanAmount = { [Op.gte]: [value] };
             break;
-            case "betweenLoanAmount":
+          case "betweenLoanAmount":
             const [minAmount, maxAmount] = value.split("<");
             whereConditions.loanAmount = { [Op.between]: [minAmount, maxAmount] };
             break;
-            case "lessThanIntrestRate":
+          case "lessThanIntrestRate":
             whereConditions.interestRate = { [Op.lte]: [value] };
             break;
-            case "greaterThanIntrestRate":
+          case "greaterThanIntrestRate":
             whereConditions.interestRate = { [Op.gte]: [value] };
             break;
-            case "betweenIntrestRate":
+          case "betweenIntrestRate":
             const [minIntrestRate, maxIntrestRate] = value.split("<");
             whereConditions.interestRate = { [Op.between]: [minIntrestRate, maxIntrestRate] };
             break;
-            case "lessThanLoanTerm":
+          case "lessThanLoanTerm":
             whereConditions.loanTerm = { [Op.lte]: [value] };
             break;
-            case "greaterThanLoanTerm":
+          case "greaterThanLoanTerm":
             whereConditions.loanTerm = { [Op.gte]: [value] };
             break;
-            case "betweenLoanTerm":
+          case "betweenLoanTerm":
             const [minLoanTerm, maxLoanTerm] = value.split("<");
             whereConditions.loanTerm = { [Op.between]: [minLoanTerm, maxLoanTerm] };
             break;
@@ -90,6 +90,20 @@ class LoanActivityService {
       }
     }
     return await loanActivityDao.searchLoanActivity(whereConditions);
+  }
+
+  // Show interest on loan offers and loan requests
+  async showInterest(mobileNumber: string, loanActivityId: number) {
+    if (!(mobileNumber && loanActivityId)) {
+      throw new BadRequestError("Invalid Credential");
+    }
+    const user = await userService.getUserByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+    const isInterested = await loanActivityDao.checkInterest(userId, loanActivityId);
+    if (isInterested) {
+        throw new BadRequestError("User Already Showed interest on this Activity");
+    }
+    await loanActivityDao.showInterest(userId, loanActivityId);
   }
 }
 
