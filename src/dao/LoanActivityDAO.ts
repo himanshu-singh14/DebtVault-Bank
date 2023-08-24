@@ -19,6 +19,13 @@ class LoanActivityDao {
     });
     return activityId;
   }
+
+  // Show all Loan offers or requests for particular user
+  async showLoanActivity(userId: number): Promise<LoanActivity[] | null> {
+    return await LoanActivity.findAll({
+      where: { userId: userId},
+    });
+  }
 }
 
 export default LoanActivityDao;

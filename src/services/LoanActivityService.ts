@@ -1,4 +1,5 @@
 import LoanActivityDao from "../dao/LoanActivityDAO";
+import LoanActivity from "../models/LoanActivity";
 import { BadRequestError } from "../utils/Exceptions";
 import UserService from "./UserService";
 
@@ -24,9 +25,16 @@ class LoanActivityService {
     const user = await userService.getUserByMobileNumber(mobileNumber);
     const userId: any = user.dataValues.id;
     const activityId = await loanActivityDao.updateLoanActivity(userId, id, details);
-    if(activityId[0] === 0) {
-        throw new BadRequestError("Not editable!");
+    if (activityId[0] === 0) {
+      throw new BadRequestError("Not editable!");
     }
+  }
+
+  // Show all Loan offers or requests for particular user
+  async showLoanActivity(mobileNumber: string): Promise<LoanActivity[] | null> {
+    const user = await userService.getUserByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+    return await loanActivityDao.showLoanActivity(userId);
   }
 }
 

@@ -31,4 +31,16 @@ router.patch("/updateLoanActivity", authenticated, async (req: Request, res: Res
   }
 });
 
+// Show all Loan offers or requests for particular user
+router.get("/showLoanActivity", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber } = req.body;
+    const allLoanActivity = await activityLoanService.showLoanActivity(mobileNumber);
+    res.status(200).json(allLoanActivity);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;
