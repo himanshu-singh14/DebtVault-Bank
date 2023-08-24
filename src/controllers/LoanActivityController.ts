@@ -43,4 +43,16 @@ router.get("/showLoanActivity", authenticated, async (req: Request, res: Respons
   }
 });
 
+// Search/Filter Loan offers or requests based on requirement
+router.get("/searchLoanActivity", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber, ...details } = req.body;
+    const searchedLoanActivity = await activityLoanService.searchLoanActivity(mobileNumber, details);
+    res.status(200).json(searchedLoanActivity);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;

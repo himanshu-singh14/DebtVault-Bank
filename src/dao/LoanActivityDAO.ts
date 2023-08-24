@@ -23,7 +23,15 @@ class LoanActivityDao {
   // Show all Loan offers or requests for particular user
   async showLoanActivity(userId: number): Promise<LoanActivity[] | null> {
     return await LoanActivity.findAll({
-      where: { userId: userId},
+      where: { userId: userId },
+    });
+  }
+
+  // Show all Loan offers or requests for particular user
+  async searchLoanActivity(whereConditions: any): Promise<LoanActivity[] | null> {
+    return await LoanActivity.findAll({
+      where: whereConditions,
+      attributes: ["id", "userId", "loanAmount", "interestRate", "loanTerm", "createdAt"],
     });
   }
 }
