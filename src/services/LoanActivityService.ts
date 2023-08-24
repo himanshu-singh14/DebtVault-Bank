@@ -119,7 +119,7 @@ class LoanActivityService {
     }
     const allLoanActivityIds: any = allLoanActivitiesofUser?.map((activity) => activity.dataValues.id);
     if (!(loanActivityId in allLoanActivityIds)) {
-        throw new BadRequestError("Provided loan offer/request Id is not yours. Please re-enter!");
+      throw new BadRequestError("Provided loan offer/request Id is not yours. Please re-enter!");
     }
     const allusers = await loanActivityDao.viewAllInterestedUser(userId, loanActivityId);
     if (!allusers) {
@@ -127,6 +127,21 @@ class LoanActivityService {
     }
     const interestedUsers = allusers.map((user) => user.dataValues);
     return interestedUsers;
+  }
+
+  // Removing interest for an existing intrested loan offer/request
+  async removeInterest(mobileNumber: string, loanActivityId: number) {
+    if (!(mobileNumber && loanActivityId)) {
+      throw new BadRequestError("Invalid Credential");
+    }
+    const user = await userService.getUserByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+
+    const isInterested = await loanActivityDao.checkInterest(userId, loanActivityId);
+    if (!isInterested) {
+      throw new BadRequestError("You have not showed interest on this Activity");
+    }
+    await loanActivityDao.removeInterest(userId, loanActivityId);
   }
 }
 

@@ -58,6 +58,13 @@ class LoanActivityDao {
       attributes: ["userId", "createdAt"],
     });
   }
+
+  // Removing interest for an existing intrested loan offer/request
+  async removeInterest(userId: number, loanActivityId: number) {
+    return await InterestActivity.destroy({
+      where: { userId: userId, loanActivityId: loanActivityId }
+    });
+  }
 }
 
 export default LoanActivityDao;

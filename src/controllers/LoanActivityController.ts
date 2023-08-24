@@ -79,4 +79,16 @@ router.get("/viewAllInterestedUser", authenticated, async (req: Request, res: Re
   }
 });
 
+// Removing interest for an existing intrested loan offer/request
+router.delete("/removeInterest", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber, loanActivityId } = req.body;
+    await activityLoanService.removeInterest(mobileNumber, loanActivityId);
+    res.status(200).send("Your intrest has been removed!");
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;
