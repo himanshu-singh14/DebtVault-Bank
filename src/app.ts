@@ -10,6 +10,7 @@ import Transaction from './models/Transaction';
 import Loan from './models/Loan';
 import cookieParser from "cookie-parser";
 import LoanActivity from './models/LoanActivity';
+import InterestActivity from './models/InterestActivity';
 
 const app = express();
 app.use(express.json());
@@ -45,6 +46,11 @@ Loan.sync().then(() => {
 // Loan Activity model sync
 LoanActivity.sync().then(() => {
   console.log("LoanActivity table created!");
+});
+
+// Interest Activity model sync
+InterestActivity.sync().then(() => {
+  console.log("InterestActivity table created!");
 });
 
 // User and Acount One to One Association
