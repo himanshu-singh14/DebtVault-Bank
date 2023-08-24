@@ -50,6 +50,14 @@ class LoanActivityDao {
       where: { userId: userId, loanActivityId: loanActivityId },
     });
   }
+
+  // Find all interested users on any particular loan offer/request
+  async viewAllInterestedUser(userId: number, loanActivityId: number): Promise<InterestActivity[] | null> {
+    return await InterestActivity.findAll({
+      where: { userId: userId, loanActivityId: loanActivityId },
+      attributes: ["userId", "createdAt"],
+    });
+  }
 }
 
 export default LoanActivityDao;

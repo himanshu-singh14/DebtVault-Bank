@@ -67,4 +67,16 @@ router.post("/showInterest", authenticated, async (req: Request, res: Response) 
   }
 });
 
+// View all interested users for any particular loan offer/request
+router.get("/viewAllInterestedUser", authenticated, async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber, loanActivityId } = req.body;
+    const interestedUsers = await activityLoanService.viewAllInterestedUser(mobileNumber, loanActivityId);
+    res.status(200).json(interestedUsers);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;
