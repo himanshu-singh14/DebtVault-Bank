@@ -101,6 +101,17 @@ class UserService {
     await userDao.deleteUser(mobileNumber);
     return user;
   }
+
+  //Show notifications to user
+  async showNotifications(mobileNumber: string): Promise<object[]> {
+    if (!(mobileNumber)) {
+      throw new BadRequestError("Invalid Credential");
+    }
+    console.log("mobileNumber", mobileNumber);
+    const user = await this.getUserByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+    return await userDao.showNotifications(userId);
+  }
 }
 
 export default UserService;

@@ -101,4 +101,16 @@ router.delete("/:mobileNumber", authenticated, async (req: Request, res: Respons
   }
 });
 
+// Show notifications to user
+router.get("/:mobileNumber/notifications", authenticated, async (req: Request, res: Response) => {
+  try {
+    const mobileNumber = req.params.mobileNumber;
+    const notifications = await userService.showNotifications(mobileNumber);
+    res.status(200).json(notifications);
+  } catch (error) {
+    const typedError = error as { status: number; message: string };
+    res.status(typedError.status || 500).send(typedError.message);
+  }
+});
+
 export default router;

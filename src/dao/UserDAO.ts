@@ -1,4 +1,5 @@
 import User from "../models/User";
+import Notification from "../models/Notification";
 
 class UserDao {
   // Insert user to database
@@ -37,6 +38,14 @@ class UserDao {
     return await User.destroy({
       where: { mobileNumber: mobileNumber },
     });
+  }
+
+  // Retrieves all notifications
+  async showNotifications(userId: number): Promise<object[]> {
+    const notifications = await Notification.findAll({
+      where: { userId: userId },
+    });
+    return notifications.map((notification) => notification.dataValues);
   }
 }
 
