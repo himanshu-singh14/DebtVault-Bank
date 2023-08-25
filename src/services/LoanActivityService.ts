@@ -5,6 +5,7 @@ import UserService from "./UserService";
 import { Op } from "sequelize";
 import NotificationDao from "../dao/NotificationDAO";
 import UserDao from "../dao/UserDAO";
+import sequelize from "../sequelize.config";
 
 const userService = new UserService();
 const loanActivityDao = new LoanActivityDao();
@@ -115,14 +116,21 @@ class LoanActivityService {
     } else if (!(loanActivityStatus === "Open")) {
       throw new BadRequestError("You can't show interest on accepted or Withdrwan loan Activity");
     }
-    await loanActivityDao.showInterest(userId, loanActivityId);
 
-    // Send Notification to user who raise loan offer/request
-    const owner = await userDao.getUserByUserId(ownerIdOfLoanActivity);
-    const ownerName = owner?.dataValues.name;
-    const loanActivityType = loanActivity?.dataValues.activityType;
-    const message: string = `${ownerName} has expressed interest in your loan ${loanActivityType} with ID: ${loanActivityId}`;
-    await notificationDao.createNotification(ownerIdOfLoanActivity, message);
+    const t = await sequelize.transaction();
+    try {
+      await loanActivityDao.showInterest(userId, loanActivityId, t);
+
+      // Send Notification to user who raise loan offer/request
+      const owner = await userDao.getUserByUserId(ownerIdOfLoanActivity);
+      const ownerName = owner?.dataValues.name;
+      const loanActivityType = loanActivity?.dataValues.activityType;
+      const message: string = `${ownerName} has expressed interest in your loan ${loanActivityType} with ID: ${loanActivityId}`;
+      await notificationDao.createNotification(ownerIdOfLoanActivity, message, t);
+      await t.commit();
+    } catch (error) {
+      await t.rollback();
+    }    
   }
 
   // View all interested users for any particular loan offer/request

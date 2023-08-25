@@ -3,11 +3,14 @@ import sequelize from "../sequelize.config";
 
 class NotificationDao {
   // Create Notification
-  async createNotification(userId: number, message: string): Promise<Notification> {
-    return await Notification.create({
-      userId: userId,
-      message: message,
-    });
+  async createNotification(userId: number, message: string, transaction: any): Promise<Notification> {
+    return await Notification.create(
+      {
+        userId: userId,
+        message: message,
+      },
+      { transaction }
+    );
   }
 
   // Retrieves all notifications

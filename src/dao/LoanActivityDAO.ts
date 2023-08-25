@@ -37,11 +37,14 @@ class LoanActivityDao {
   }
 
   // Create Interest Activity
-  async showInterest(userId: number, loanActivityId: number) {
-    return await InterestActivity.create({
-      userId: userId,
-      loanActivityId: loanActivityId,
-    });
+  async showInterest(userId: number, loanActivityId: number, transaction: any) {
+    return await InterestActivity.create(
+      {
+        userId: userId,
+        loanActivityId: loanActivityId,
+      },
+      { transaction }
+    );
   }
 
   // Check Interest Activity

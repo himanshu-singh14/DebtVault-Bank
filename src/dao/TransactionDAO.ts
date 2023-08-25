@@ -4,26 +4,28 @@ import { Sequelize, Op } from "sequelize";
 
 class TransactionDao {
   // Create a transaction
-  async createTransaction(transactionData: any): Promise<Transaction> {
-    return await Transaction.create(transactionData);
+  async createTransaction(transactionData: any, transaction: any): Promise<Transaction> {
+    return await Transaction.create(transactionData, { transaction });
   }
 
   // Update Balance in account by UPI ID
-  async updateBalance(upiId: string, newBalance: number): Promise<any> {
+  async updateBalance(upiId: string, newBalance: number, transaction: any): Promise<any> {
     await Account.update(
       { balance: newBalance },
       {
         where: { upiId: upiId },
+        transaction,
       }
     );
   }
 
   // Add amount without knowing balance
-  async justAddAmount(recipientUpiId: string, amount: number): Promise<any> {
+  async justAddAmount(recipientUpiId: string, amount: number, transaction: any): Promise<any> {
     await Account.update(
       { balance: Sequelize.literal(`balance + ${amount}`) },
       {
         where: { upiId: recipientUpiId },
+        transaction,
       }
     );
   }

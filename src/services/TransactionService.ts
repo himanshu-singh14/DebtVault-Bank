@@ -4,6 +4,7 @@ import AccountService from "./AccountService";
 import Transaction from "../models/Transaction";
 import UserService from "./UserService";
 import NotificationDao from "../dao/NotificationDAO";
+import sequelize from "../sequelize.config";
 
 const transactionDao = new TransactionDao();
 const accountService = new AccountService();
@@ -27,12 +28,18 @@ class TransactionService {
       amount: amount,
       transactionType: transactionType,
     };
-    await transactionDao.createTransaction(transactionDetails);
-    await transactionDao.updateBalance(upiId, newBalance);
+    
+    const t = await sequelize.transaction();
+    try {
+      await transactionDao.createTransaction(transactionDetails, t);
+      await transactionDao.updateBalance(upiId, newBalance, t);
 
-    const message: string = `Rs.${amount} Deposited. Total Balance: Rs.${newBalance}`;
-    await notificationDao.createNotification(userId, message);
-
+      const message: string = `Rs.${amount} Deposited. Total Balance: Rs.${newBalance}`;
+      await notificationDao.createNotification(userId, message, t);
+      await t.commit();
+    } catch (error) {
+      await t.rollback();
+    }
     return newBalance;
   }
 
@@ -55,12 +62,18 @@ class TransactionService {
       amount: amount,
       transactionType: transactionType,
     };
-    await transactionDao.createTransaction(transactionDetails);
-    await transactionDao.updateBalance(upiId, newBalance);
 
-    const message: string = `Rs.${amount} Withdrawn. Total Balance: Rs.${newBalance}`;
-    await notificationDao.createNotification(userId, message);
+    const t = await sequelize.transaction();
+    try {
+      await transactionDao.createTransaction(transactionDetails, t);
+      await transactionDao.updateBalance(upiId, newBalance, t);
 
+      const message: string = `Rs.${amount} Withdrawn. Total Balance: Rs.${newBalance}`;
+      await notificationDao.createNotification(userId, message, t);
+      await t.commit();
+    } catch (error) {
+      await t.rollback();
+    }
     return newBalance;
   }
 
@@ -90,19 +103,24 @@ class TransactionService {
       }
     });
 
-    await transactionDao.createTransaction(transactionData);
-    await transactionDao.updateBalance(senderUpiId, senderNewBalance);
-    await transactionDao.justAddAmount(recipientUpiId, amount);
+    const t = await sequelize.transaction();
+    try {
+      await transactionDao.createTransaction(transactionData, t);
+      await transactionDao.updateBalance(senderUpiId, senderNewBalance, t);
+      await transactionDao.justAddAmount(recipientUpiId, amount, t);
 
-    // Send notification to sender
-    const senderMessage: string = `Rs.${amount} Debited from ${senderUpiId} to ${recipientUpiId}. Total Balance: Rs.${senderNewBalance}`;
-    await notificationDao.createNotification(senderId, senderMessage);
+      // Send notification to sender
+      const senderMessage: string = `Rs.${amount} Debited from ${senderUpiId} to ${recipientUpiId}. Total Balance: Rs.${senderNewBalance}`;
+      await notificationDao.createNotification(senderId, senderMessage, t);
 
-    // Send notification to recipient
-    const recipientNewBalance = recipientAccount.dataValues.balance + amount;
-    const recipientMessage: string = `Rs.${amount} Credited to ${recipientUpiId} from ${senderUpiId}. Total Balance: Rs.${recipientNewBalance}`;
-    await notificationDao.createNotification(recipientId, recipientMessage);
-
+      // Send notification to recipient
+      const recipientNewBalance = recipientAccount.dataValues.balance + amount;
+      const recipientMessage: string = `Rs.${amount} Credited to ${recipientUpiId} from ${senderUpiId}. Total Balance: Rs.${recipientNewBalance}`;
+      await notificationDao.createNotification(recipientId, recipientMessage, t);
+      await t.commit();
+    } catch (error) {
+      await t.rollback();
+    }
     return senderNewBalance;
   }
 
