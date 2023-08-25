@@ -3,9 +3,13 @@ import LoanActivity from "../models/LoanActivity";
 import { BadRequestError } from "../utils/Exceptions";
 import UserService from "./UserService";
 import { Op } from "sequelize";
+import NotificationDao from "../dao/NotificationDAO";
+import UserDao from "../dao/UserDAO";
 
 const userService = new UserService();
 const loanActivityDao = new LoanActivityDao();
+const notificationDao = new NotificationDao();
+const userDao = new UserDao();
 
 class LoanActivityService {
   // Create Loan Activity for Offering or Requesting Loan
@@ -101,9 +105,24 @@ class LoanActivityService {
     const userId: any = user.dataValues.id;
     const isInterested = await loanActivityDao.checkInterest(userId, loanActivityId);
     if (isInterested) {
-      throw new BadRequestError("User Already Showed interest on this Activity");
+      throw new BadRequestError("User Already Showed interest on this Loan Activity");
+    }
+    const loanActivity = await loanActivityDao.getUserFromLoanActivityId(loanActivityId);
+    const ownerIdOfLoanActivity: any = loanActivity?.dataValues.userId;
+    const loanActivityStatus = loanActivity?.dataValues.status;
+    if (ownerIdOfLoanActivity === userId) {
+        throw new BadRequestError("You can't Show interest on your own Loan Activity");
+    } else if (!(loanActivityStatus === "Open")) {
+      throw new BadRequestError("You can't show interest on accepted or Withdrwan loan Activity");
     }
     await loanActivityDao.showInterest(userId, loanActivityId);
+
+    // Send Notification to user who raise loan offer/request
+    const owner = await userDao.getUserByUserId(ownerIdOfLoanActivity);
+    const ownerName = owner?.dataValues.name;
+    const loanActivityType = loanActivity?.dataValues.activityType;
+    const message: string = `${ownerName} has expressed interest in your loan ${loanActivityType} with ID: ${loanActivityId}`;
+    await notificationDao.createNotification(ownerIdOfLoanActivity, message);
   }
 
   // View all interested users for any particular loan offer/request

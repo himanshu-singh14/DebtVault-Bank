@@ -1,10 +1,12 @@
 import User from "../models/User";
 import UserDao from "../dao/UserDAO";
+import NotificationDao from "../dao/NotificationDAO";
 import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError } from "../utils/Exceptions";
 import PasswordHashing from "../utils/PasswordHashing";
 import CreateToken from "../utils/Authentication";
 
 const userDao = new UserDao();
+const notificationDao = new NotificationDao();
 
 class UserService {
   // Registers a new user with the provided information
@@ -110,7 +112,7 @@ class UserService {
     console.log("mobileNumber", mobileNumber);
     const user = await this.getUserByMobileNumber(mobileNumber);
     const userId: any = user.dataValues.id;
-    return await userDao.showNotifications(userId);
+    return await notificationDao.showNotifications(userId);
   }
 }
 

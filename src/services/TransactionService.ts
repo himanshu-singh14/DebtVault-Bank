@@ -3,10 +3,12 @@ import { BadRequestError } from "../utils/Exceptions";
 import AccountService from "./AccountService";
 import Transaction from "../models/Transaction";
 import UserService from "./UserService";
+import NotificationDao from "../dao/NotificationDAO";
 
 const transactionDao = new TransactionDao();
 const accountService = new AccountService();
 const userService = new UserService();
+const notificationDao = new NotificationDao();
 
 class TransactionService {
   // Deposit money in account by UPI ID and PIN
@@ -14,6 +16,9 @@ class TransactionService {
     if (!(mobileNumber && upiId && pin && amount && transactionType)) {
       throw new BadRequestError("Invalid Credential");
     }
+    const user = await userService.getUserByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+
     const balance = await accountService.checkBalance(mobileNumber, upiId, pin);
     const newBalance = balance + amount;
     const transactionDetails = {
@@ -24,6 +29,10 @@ class TransactionService {
     };
     await transactionDao.createTransaction(transactionDetails);
     await transactionDao.updateBalance(upiId, newBalance);
+
+    const message: string = `Rs.${amount} Deposited. Total Balance: Rs.${newBalance}`;
+    await notificationDao.createNotification(userId, message);
+
     return newBalance;
   }
 
@@ -32,6 +41,9 @@ class TransactionService {
     if (!(mobileNumber && upiId && pin && amount && transactionType)) {
       throw new BadRequestError("Invalid Credential");
     }
+    const user = await userService.getUserByMobileNumber(mobileNumber);
+    const userId: any = user.dataValues.id;
+
     const balance = await accountService.checkBalance(mobileNumber, upiId, pin);
     const newBalance = balance - amount;
     if (newBalance < 0) {
@@ -45,6 +57,10 @@ class TransactionService {
     };
     await transactionDao.createTransaction(transactionDetails);
     await transactionDao.updateBalance(upiId, newBalance);
+
+    const message: string = `Rs.${amount} Withdrawn. Total Balance: Rs.${newBalance}`;
+    await notificationDao.createNotification(userId, message);
+
     return newBalance;
   }
 
@@ -54,7 +70,14 @@ class TransactionService {
     if (!(mobileNumber && senderUpiId && recipientUpiId && pin && amount && transactionType)) {
       throw new BadRequestError("Invalid Credential");
     }
-    await accountService.checkAccountByUpiId(recipientUpiId);
+    const sender = await userService.getUserByMobileNumber(mobileNumber);
+    const senderId: any = sender.dataValues.id;
+
+    const recipientMobileNumber = await accountService.getMobileNumberByUpiId(recipientUpiId);
+    const recipient = await userService.getUserByMobileNumber(recipientMobileNumber);
+    const recipientId: any = recipient.dataValues.id;
+
+    const recipientAccount = await accountService.checkAccountByUpiId(recipientUpiId);
     const senderBalance = await accountService.checkBalance(mobileNumber, senderUpiId, pin);
     const senderNewBalance = senderBalance - amount;
     if (senderNewBalance < 0) {
@@ -70,6 +93,16 @@ class TransactionService {
     await transactionDao.createTransaction(transactionData);
     await transactionDao.updateBalance(senderUpiId, senderNewBalance);
     await transactionDao.justAddAmount(recipientUpiId, amount);
+
+    // Send notification to sender
+    const senderMessage: string = `Rs.${amount} Debited from ${senderUpiId} to ${recipientUpiId}. Total Balance: Rs.${senderNewBalance}`;
+    await notificationDao.createNotification(senderId, senderMessage);
+
+    // Send notification to recipient
+    const recipientNewBalance = recipientAccount.dataValues.balance + amount;
+    const recipientMessage: string = `Rs.${amount} Credited to ${recipientUpiId} from ${senderUpiId}. Total Balance: Rs.${recipientNewBalance}`;
+    await notificationDao.createNotification(recipientId, recipientMessage);
+
     return senderNewBalance;
   }
 

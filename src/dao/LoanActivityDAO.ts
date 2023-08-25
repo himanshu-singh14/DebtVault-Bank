@@ -62,7 +62,14 @@ class LoanActivityDao {
   // Removing interest for an existing intrested loan offer/request
   async removeInterest(userId: number, loanActivityId: number) {
     return await InterestActivity.destroy({
-      where: { userId: userId, loanActivityId: loanActivityId }
+      where: { userId: userId, loanActivityId: loanActivityId },
+    });
+  }
+
+  // Find User through Loan Activity Id
+  async getUserFromLoanActivityId(loanActivityId: number): Promise<LoanActivity | null> {
+    return await LoanActivity.findOne({
+      where: { id: loanActivityId },
     });
   }
 }
