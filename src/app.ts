@@ -11,6 +11,7 @@ import Loan from './models/Loan';
 import cookieParser from "cookie-parser";
 import LoanActivity from './models/LoanActivity';
 import InterestActivity from './models/InterestActivity';
+import Notification from './models/Notification';
 
 const app = express();
 app.use(express.json());
@@ -51,6 +52,11 @@ LoanActivity.sync().then(() => {
 // Interest Activity model sync
 InterestActivity.sync().then(() => {
   console.log("InterestActivity table created!");
+});
+
+// Notification model sync
+Notification.sync().then(() => {
+  console.log("Notification table created!");
 });
 
 // User and Acount One to One Association
