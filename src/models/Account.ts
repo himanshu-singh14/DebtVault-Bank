@@ -4,7 +4,7 @@ import sequelize from "../sequelize.config";
 interface AccountAttributes {
   id?: number;
   userId: number;     // Foreign key of User table
-  upiId: string;      // Account Number(Enter mobile number here)
+  upiId: string;      // Account Number ( Enter mobile number here it will look like eg. 7619XXXX69@debtvault )
   balance?: number;
   pin: string;        // 4 digit Pin
   status?: string;     // Active or Closed

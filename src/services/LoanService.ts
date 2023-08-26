@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 import LoanDao from "../dao/LoanDAO";
-import Loan from "../models/Loan";
 import { AllFine, BadRequestError, NotFoundError } from "../utils/Exceptions";
 import AccountService from "./AccountService";
 import TransactionService from "./TransactionService";

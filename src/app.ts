@@ -1,4 +1,4 @@
-import express, { NextFunction } from 'express'
+import express from 'express'
 import userController from "./controllers/UserController";
 import accountController from "./controllers/AccountController";
 import transactionController from "./controllers/TransactionController"
@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 import LoanActivity from './models/LoanActivity';
 import InterestActivity from './models/InterestActivity';
 import Notification from './models/Notification';
+import sequelize from './sequelize.config';
 
 const app = express();
 app.use(express.json());
@@ -24,40 +25,10 @@ app.use("/transactions", transactionController);
 app.use("/loans", loanController);
 app.use("/loanActivities", loanActivityController);
 
-// User model sync
-User.sync().then(() => {
-  console.log("User table created!");
-});
-
-// Account model sync
-Account.sync().then(() => {
-  console.log("Account table created!");
-});
-
-// Transaction model sync
-Transaction.sync({}).then(() => {
-  console.log("Transaction table created!");
-});
-
-// Loan model sync
-Loan.sync().then(() => {
-  console.log("Loan table created!");
-});
-
-// Loan Activity model sync
-LoanActivity.sync().then(() => {
-  console.log("LoanActivity table created!");
-});
-
-// Interest Activity model sync
-InterestActivity.sync().then(() => {
-  console.log("InterestActivity table created!");
-});
-
-// Notification model sync
-Notification.sync().then(() => {
-  console.log("Notification table created!");
-});
+// Database sync
+sequelize.sync().then(() => {
+  console.log("Database synchronization completed");
+})
 
 // User and Acount One to One Association
 User.hasOne(Account);

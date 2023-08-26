@@ -5,6 +5,7 @@ import authenticated from "../middlewares/Authentication";
 const router = express.Router();
 const transactionService = new TransactionService();
 
+// Deposite money to bank account
 router.patch("/:mobileNumber/deposit", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
@@ -19,44 +20,41 @@ router.patch("/:mobileNumber/deposit", authenticated, async (req: Request, res: 
   }
 });
 
+// Withdraw money from bank account
 router.patch("/:mobileNumber/withdraw", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { upiId, pin, amount, transactionType } = req.body;
     const newBalance = await transactionService.withdrawMoney(mobileNumber, upiId, pin, amount, transactionType);
-    // Send a successful response for withdrawing money
     res.status(200).send(`₹${amount} have been withdrawn! Your current account balance is now ₹${newBalance}`);
   } catch (error) {
-    // Return status code and error message for server-side error
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 
+// Transfer money from one account to others
 router.patch("/:mobileNumber/transfer", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const transactionDetails = req.body;
     const { amount } = req.body;
     const newBalance = await transactionService.transferMoney(mobileNumber, transactionDetails);
-    // Send a successful response for withdrawing money
     res.status(200).send(`₹${amount} have been transfered! Your current account balance is now ₹${newBalance}`);
   } catch (error) {
-    // Return status code and error message for server-side error
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 
+// See transaction history of deposite/withdraw/transfer/loanrepayment
 router.get("/:mobileNumber/transactionHistory", authenticated, async (req: Request, res: Response) => {
   try {
     const mobileNumber = req.params.mobileNumber;
     const { upiId, pin } = req.body;
     const history = await transactionService.transactionHistory(mobileNumber, upiId, pin);
-    // Send a successful response for withdrawing money
     res.status(200).send(history);
   } catch (error) {
-    // Return status code and error message for server-side error
     const typedError = error as { status: number; message: string };
     res.status(typedError.status || 500).send(typedError.message);
   }

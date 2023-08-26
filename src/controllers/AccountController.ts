@@ -5,6 +5,7 @@ import authenticated from "../middlewares/Authentication";
 const router = express.Router();
 const accountService = new AccountService();
 
+// Create Account
 router.post("/createAccount", authenticated, async (req: Request, res: Response) => {
   try {
     const { mobileNumber, pin } = req.body;
@@ -26,7 +27,7 @@ router.delete("/:mobileNumber", authenticated, async (req: Request, res: Respons
     res.status(200).send("Account deleted");
   } catch (error) {
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 
@@ -39,7 +40,7 @@ router.get("/:mobileNumber/checkBalance", authenticated, async (req: Request, re
     res.status(200).send(`Your Account Balance is ₹${balance}`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 
@@ -51,7 +52,7 @@ router.get("/accountDetails", authenticated, async (req: Request, res: Response)
     res.status(200).send(details);
   } catch (error) {
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 
@@ -64,7 +65,7 @@ router.patch("/:mobileNumber/resetAccountPin", authenticated, async (req: Reques
     res.status(200).send(`Your account PIN has been changed!`);
   } catch (error) {
     const typedError = error as { status: number; message: string };
-    res.status(typedError.status).send(typedError.message);
+    res.status(typedError.status || 500).send(typedError.message);
   }
 });
 

@@ -22,10 +22,8 @@ router.post("/loanRepayment", authenticated, async (req: Request, res: Response)
   try {
     const { borrowerMobileNumber, lenderMobileNumber, amount, pin, loanId } = req.body;
     const senderNewBalance = await loanService.loanRepayment(borrowerMobileNumber, lenderMobileNumber, amount, pin, loanId);
-    // Send a successful response for successful repayment
     res.status(201).send(`Loan Repayment Successful!..! ₹${amount} has been debited from your account..! Your current account balance is now ₹${senderNewBalance}`);
   } catch (error) {
-    // Return status code and error message for server-side error
     const typedError = error as { status: number; message: string };
     res.status(typedError.status || 500).send(typedError.message);
   }

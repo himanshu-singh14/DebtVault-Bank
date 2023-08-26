@@ -1,6 +1,6 @@
 import UserDao from "../dao/UserDAO";
 import AccountDao from "../dao/AccountDAO";
-import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError, NotLoggedInError } from "../utils/Exceptions";
+import { NotFoundError, BadRequestError, WrongPasswordError, AlreadyExistError } from "../utils/Exceptions";
 import Account from "../models/Account";
 import User from "../models/User";
 import PinHashing from "../utils/PasswordHashing";
